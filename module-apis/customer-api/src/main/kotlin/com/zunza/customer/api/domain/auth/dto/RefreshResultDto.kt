@@ -1,4 +1,4 @@
-package com.zunza.customer.api.domain.customer.dto
+package com.zunza.customer.api.domain.auth.dto
 
 data class RefreshResultDto(
     val newAccessToken: String,

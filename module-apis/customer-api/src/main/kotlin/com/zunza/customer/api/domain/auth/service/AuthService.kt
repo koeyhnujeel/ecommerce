@@ -4,8 +4,8 @@ import com.zunza.apis.auth.jwt.JwtProvider
 import com.zunza.apis.auth.jwt.exception.CustomTokenException
 import com.zunza.apis.support.exception.ErrorCode
 import com.zunza.customer.api.domain.auth.dto.request.LoginRequestDto
-import com.zunza.customer.api.domain.customer.dto.LoginResultDto
-import com.zunza.customer.api.domain.customer.dto.RefreshResultDto
+import com.zunza.customer.api.domain.auth.dto.LoginResultDto
+import com.zunza.customer.api.domain.auth.dto.RefreshResultDto
 import com.zunza.domain.enums.UserRole
 import com.zunza.domain.repository.CustomerRepository
 import com.zunza.infra.redis.RefreshTokenRepository

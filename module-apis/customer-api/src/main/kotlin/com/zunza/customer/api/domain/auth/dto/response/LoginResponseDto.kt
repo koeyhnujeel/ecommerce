@@ -1,6 +1,6 @@
-package com.zunza.customer.api.domain.customer.dto.response
+package com.zunza.customer.api.domain.auth.dto.response
 
-import com.zunza.customer.api.domain.customer.dto.LoginResultDto
+import com.zunza.customer.api.domain.auth.dto.LoginResultDto
 
 data class LoginResponseDto(
     val nickname: String,

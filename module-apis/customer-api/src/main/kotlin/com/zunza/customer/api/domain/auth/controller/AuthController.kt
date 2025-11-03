@@ -3,8 +3,8 @@ package com.zunza.customer.api.domain.auth.controller
 import com.zunza.apis.support.resopnse.ApiResponse
 import com.zunza.customer.api.domain.auth.dto.request.LoginRequestDto
 import com.zunza.customer.api.domain.auth.service.AuthService
-import com.zunza.customer.api.domain.customer.dto.response.LoginResponseDto
-import com.zunza.customer.api.domain.customer.dto.response.RefreshResponseDto
+import com.zunza.customer.api.domain.auth.dto.response.LoginResponseDto
+import com.zunza.customer.api.domain.auth.dto.response.RefreshResponseDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
