@@ -6,6 +6,7 @@ import com.zunza.apis.auth.jwt.JwtProvider
 import com.zunza.apis.support.exception.ErrorCode
 import com.zunza.customer.api.domain.customer.dto.request.AddressRegisterRequestDto
 import com.zunza.domain.entity.Customer
+import com.zunza.domain.enums.UserRole
 import com.zunza.domain.repository.CustomerAddressRepository
 import com.zunza.domain.repository.CustomerRepository
 import io.kotest.core.spec.style.FunSpec
@@ -75,5 +76,19 @@ class AddressIntegrationTests(
         address.address shouldBe request.address
         address.addressDetail shouldBe request.addressDetail
         address.isDefault shouldBe request.isDefault
+    }
+
+    test("배송지 등록 실패: 유효하지 않은 사용자가 배송지 등록을 시도하면 404 예외를 응답한다.") {
+        val token = jwtProvider.generateAccessToken(2L, UserRole.ROLE_CUSTOMER)
+
+        mockMvc.post("/api/customers/me/addresses") {
+            content = objectMapper.writeValueAsString(request)
+            contentType = MediaType.APPLICATION_JSON
+            header("Authorization", "Bearer $token")
+        }.andExpect {
+            status { isNotFound() }
+            jsonPath("$.result") { "ERROR" }
+            jsonPath("$.error.message") { "사용자를 찾을 수 없습니다." }
+        }
     }
 })
