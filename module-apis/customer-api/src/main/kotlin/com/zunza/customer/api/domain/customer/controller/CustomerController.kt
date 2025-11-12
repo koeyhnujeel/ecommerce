@@ -1,6 +1,6 @@
 package com.zunza.customer.api.domain.customer.controller
 
-import com.zunza.apis.support.resopnse.ApiResponse
+import com.zunza.common.support.resopnse.ApiResponse
 import com.zunza.customer.api.domain.customer.dto.request.SignupRequestDto
 import com.zunza.customer.api.domain.customer.service.CustomerService
 import jakarta.validation.Valid

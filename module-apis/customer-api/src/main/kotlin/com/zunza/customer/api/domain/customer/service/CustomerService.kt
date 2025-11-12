@@ -1,6 +1,6 @@
 package com.zunza.customer.api.domain.customer.service
 
-import com.zunza.apis.support.exception.ErrorCode
+import com.zunza.common.support.exception.ErrorCode
 import com.zunza.customer.api.domain.customer.dto.request.SignupRequestDto
 import com.zunza.customer.api.domain.customer.util.generateRandomNickname
 import com.zunza.domain.entity.Customer

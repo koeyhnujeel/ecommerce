@@ -6,5 +6,7 @@ include(
     "module-infra",
     "module-apis",
     "module-apis:customer-api",
-    "module-apis:partner-api"
+    "module-apis:partner-api",
+    "module-auth",
+    "module-common"
 )

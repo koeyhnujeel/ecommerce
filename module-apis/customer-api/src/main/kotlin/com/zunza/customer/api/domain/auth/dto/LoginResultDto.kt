@@ -6,7 +6,10 @@ data class LoginResultDto(
     val refreshToken: String,
 ) {
     companion object {
-        fun of(nickname: String, accessToken: String, refreshToken: String) =
-            LoginResultDto(nickname, accessToken, refreshToken)
+        fun of(
+            nickname: String,
+            accessToken: String,
+            refreshToken: String,
+        ) = LoginResultDto(nickname, accessToken, refreshToken)
     }
 }

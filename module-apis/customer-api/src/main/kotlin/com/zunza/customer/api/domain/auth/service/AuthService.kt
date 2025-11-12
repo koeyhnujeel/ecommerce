@@ -1,11 +1,11 @@
 package com.zunza.customer.api.domain.auth.service
 
-import com.zunza.apis.auth.jwt.JwtProvider
-import com.zunza.apis.auth.jwt.exception.CustomTokenException
-import com.zunza.apis.support.exception.ErrorCode
-import com.zunza.customer.api.domain.auth.dto.request.LoginRequestDto
+import com.zunza.auth.jwt.JwtProvider
+import com.zunza.common.support.exception.CustomTokenException
+import com.zunza.common.support.exception.ErrorCode
 import com.zunza.customer.api.domain.auth.dto.LoginResultDto
 import com.zunza.customer.api.domain.auth.dto.RefreshResultDto
+import com.zunza.customer.api.domain.auth.dto.request.LoginRequestDto
 import com.zunza.domain.enums.UserRole
 import com.zunza.domain.repository.CustomerRepository
 import com.zunza.infra.redis.RefreshTokenRepository
@@ -20,7 +20,8 @@ class AuthService(
     private val refreshTokenRepository: RefreshTokenRepository,
 ) {
     fun login(request: LoginRequestDto): LoginResultDto {
-        val customer = customerRepository.findByEmail(request.email)
+        val customer =
+            customerRepository.findByEmail(request.email)
                 ?: throw ErrorCode.UNAUTHORIZED.exception("이메일 또는 비밀번호를 확인해 주세요.")
 
         if (!passwordEncoder.matches(request.password, customer.password)) {
@@ -39,7 +40,10 @@ class AuthService(
         refreshTokenRepository.delete(customerId)
     }
 
-    fun tokenRefresh(bearerToken: String, refreshToken: String): RefreshResultDto {
+    fun tokenRefresh(
+        bearerToken: String,
+        refreshToken: String,
+    ): RefreshResultDto {
         try {
             jwtProvider.validateToken(refreshToken)
 
@@ -47,8 +51,9 @@ class AuthService(
             val claims = jwtProvider.parseClaims(accessToken)
             val customerId = claims.subject.toLong()
 
-            val foundRefreshToken = refreshTokenRepository.findByUserId(customerId)
-                ?: throw ErrorCode.NOT_FOUND.exception("Refresh 토큰을 찾을 수 없습니다.")
+            val foundRefreshToken =
+                refreshTokenRepository.findByUserId(customerId)
+                    ?: throw ErrorCode.NOT_FOUND.exception("Refresh 토큰을 찾을 수 없습니다.")
 
             if (foundRefreshToken != refreshToken) {
                 throw ErrorCode.BAD_REQUEST.exception("유효하지 않은 토큰입니다.")

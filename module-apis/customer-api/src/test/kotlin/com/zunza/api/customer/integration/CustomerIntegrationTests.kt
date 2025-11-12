@@ -29,25 +29,25 @@ class CustomerIntegrationTests(
     @Autowired private val customerRepository: CustomerRepository,
 ) : FunSpec({
 
-    test("회원가입 성공: Customer 정보를 저장하고, 201을 반환한다.") {
-        val request = SignupRequestDto("xxx@example.com", "password1!", "홍길동", "010-1234-5678")
+        test("회원가입 성공: Customer 정보를 저장하고, 201을 반환한다.") {
+            val request = SignupRequestDto("xxx@example.com", "password1!", "홍길동", "010-1234-5678")
 
-        mockMvc
-            .post("/api/customers") {
-                content = objectMapper.writeValueAsString(request)
-                contentType = MediaType.APPLICATION_JSON
-            }.andExpect {
-                status { isCreated() }
-                jsonPath("$.result") { "SUCCESS" }
-            }
+            mockMvc
+                .post("/api/customers") {
+                    content = objectMapper.writeValueAsString(request)
+                    contentType = MediaType.APPLICATION_JSON
+                }.andExpect {
+                    status { isCreated() }
+                    jsonPath("$.result") { "SUCCESS" }
+                }
 
-        val saved = customerRepository.findAll().first()
-        saved.email shouldBe "xxx@example.com"
-        passwordEncoder.matches("password1!", saved.password) shouldBe true
-        saved.name shouldBe "홍길동"
-        saved.nickname.shouldNotBeNull()
-        saved.phone shouldBe "010-1234-5678"
-        saved.userRole shouldBe UserRole.ROLE_CUSTOMER
-        saved.point shouldBe 0L
-    }
-})
+            val saved = customerRepository.findAll().first()
+            saved.email shouldBe "xxx@example.com"
+            passwordEncoder.matches("password1!", saved.password) shouldBe true
+            saved.name shouldBe "홍길동"
+            saved.nickname.shouldNotBeNull()
+            saved.phone shouldBe "010-1234-5678"
+            saved.userRole shouldBe UserRole.ROLE_CUSTOMER
+            saved.point shouldBe 0L
+        }
+    })

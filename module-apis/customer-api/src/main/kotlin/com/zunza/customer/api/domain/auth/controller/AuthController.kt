@@ -1,10 +1,10 @@
 package com.zunza.customer.api.domain.auth.controller
 
-import com.zunza.apis.support.resopnse.ApiResponse
+import com.zunza.common.support.resopnse.ApiResponse
 import com.zunza.customer.api.domain.auth.dto.request.LoginRequestDto
-import com.zunza.customer.api.domain.auth.service.AuthService
 import com.zunza.customer.api.domain.auth.dto.response.LoginResponseDto
 import com.zunza.customer.api.domain.auth.dto.response.RefreshResponseDto
+import com.zunza.customer.api.domain.auth.service.AuthService
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
@@ -25,24 +25,26 @@ class AuthController(
 ) {
     @PostMapping("/login")
     fun login(
-        @Valid @RequestBody request: LoginRequestDto
+        @Valid @RequestBody request: LoginRequestDto,
     ): ResponseEntity<ApiResponse<LoginResponseDto>> {
         val result = authService.login(request)
         val loginResponseDto = LoginResponseDto.from(result)
         val cookie = generateRefreshTokenCookie(result.refreshToken, 7L)
 
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(ApiResponse.success(loginResponseDto))
     }
 
     @PostMapping("/logout")
     fun logout(
-        @AuthenticationPrincipal customerId: Long
+        @AuthenticationPrincipal customerId: Long,
     ): ResponseEntity<ApiResponse<Any>> {
         authService.logout(customerId)
         val cookie = generateRefreshTokenCookie("", 0L)
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(ApiResponse.success())
     }
@@ -50,21 +52,25 @@ class AuthController(
     @PostMapping("/token/refresh")
     fun refresh(
         @RequestHeader("Authorization") bearerToken: String,
-        @CookieValue("refreshToken") refreshToken: String
+        @CookieValue("refreshToken") refreshToken: String,
     ): ResponseEntity<ApiResponse<RefreshResponseDto>> {
         val result = authService.tokenRefresh(bearerToken, refreshToken)
         val refreshResponseDto = RefreshResponseDto.from(result.newAccessToken)
         val cookie = generateRefreshTokenCookie(result.newRefreshToken, 7L)
 
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(ApiResponse.success(refreshResponseDto))
     }
 
-    private fun generateRefreshTokenCookie(value: String, maxAge: Long) =
-        ResponseCookie.from("refreshToken", value)
-            .httpOnly(true)
-            .path("/")
-            .maxAge(Duration.ofDays(maxAge))
-            .build()
+    private fun generateRefreshTokenCookie(
+        value: String,
+        maxAge: Long,
+    ) = ResponseCookie
+        .from("refreshToken", value)
+        .httpOnly(true)
+        .path("/")
+        .maxAge(Duration.ofDays(maxAge))
+        .build()
 }

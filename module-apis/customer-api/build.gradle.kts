@@ -1,5 +1,6 @@
 dependencies {
-    implementation(project(":module-apis"))
+    implementation(project(":module-common"))
+    implementation(project(":module-auth"))
     implementation(project(":module-domain"))
     implementation(project(":module-infra"))
 
