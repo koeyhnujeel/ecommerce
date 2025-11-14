@@ -67,7 +67,7 @@ class AddressServiceTests :
                     addressService.registerAddress(customerId, request)
                 }
 
-            exception.message shouldBe "고객 정보를 찾을 수 없습니다."
+            exception.message shouldBe "Customer 정보를 찾을 수 없습니다."
             exception.errorCode.httpStatus shouldBe HttpStatus.NOT_FOUND
 
             verify(exactly = 1) { customerRepository.findById(customerId) }

@@ -1,10 +1,9 @@
 package com.zunza.customer.api.domain.customer.service
 
-import com.zunza.common.support.exception.ErrorCode
 import com.zunza.customer.api.domain.customer.dto.request.AddressRegisterRequestDto
 import com.zunza.domain.repository.CustomerAddressRepository
 import com.zunza.domain.repository.CustomerRepository
-import org.springframework.data.repository.findByIdOrNull
+import com.zunza.domain.repository.extensions.findByIdOrThrow
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,10 +15,7 @@ class AddressService(
         customerId: Long,
         request: AddressRegisterRequestDto,
     ) {
-        val customer =
-            customerRepository.findByIdOrNull(customerId)
-                ?: throw ErrorCode.NOT_FOUND.exception("고객 정보를 찾을 수 없습니다.")
-
+        val customer = customerRepository.findByIdOrThrow(customerId)
         val customerAddress = request.toEntity(customer)
         customerAddressRepository.save(customerAddress)
     }
