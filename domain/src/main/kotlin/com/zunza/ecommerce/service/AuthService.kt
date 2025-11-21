@@ -1,9 +1,11 @@
 package com.zunza.ecommerce.service
 
 import com.zunza.ecommerce.domain.Customer
+import com.zunza.ecommerce.dto.LoginCommand
 import com.zunza.ecommerce.dto.SignupCommand
 import com.zunza.ecommerce.port.PasswordEncoder
 import com.zunza.ecommerce.repository.CustomerRepository
+import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.support.exception.ErrorCode
 import com.zunza.ecommerce.util.NicknameGenerator
 import org.springframework.stereotype.Service
@@ -11,10 +13,11 @@ import org.springframework.stereotype.Service
 @Service
 class AuthService(
     private val customerRepository: CustomerRepository,
+    private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
     fun validateEmailAvailable(email: String) {
-        if (customerRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email)) {
             throw ErrorCode.EMAIL_ALREADY_EXISTS.exception()
         }
     }

@@ -1,31 +1,19 @@
 package com.zunza.ecommerce.persistence.mapper
 
 import com.zunza.ecommerce.domain.Customer
-import com.zunza.ecommerce.persistence.entity.CustomerEntity
+import com.zunza.ecommerce.persistence.entity.CustomerProfileEntity
 
-fun Customer.toEntity(): CustomerEntity {
-    return CustomerEntity(
-        email = this.email,
-        password = this.password,
-        name = this.name,
-        nickname = this.nickname,
-        phone = this.phone,
-        point = this.point,
-        userType = this.userType
-    )
-}
-
-fun CustomerEntity.toDomain(): Customer {
+fun CustomerProfileEntity.toDomain(): Customer {
     return Customer(
         id = this.id,
-        email = this.email,
-        password = this.password,
+        email = this.userEntity.email,
+        password = this.userEntity.password,
         name = this.name,
         nickname = this.nickname,
         phone = this.phone,
         point = this.point,
-        userType = this.userType,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        userType = this.userEntity.userType,
+        createdAt = this.userEntity.createdAt,
+        updatedAt = this.userEntity.updatedAt
     )
 }

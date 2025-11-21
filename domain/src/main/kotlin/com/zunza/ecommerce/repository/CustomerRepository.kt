@@ -7,9 +7,7 @@ interface CustomerRepository {
 
     fun existsByNickname(nickname: String): Boolean
 
-    fun existsByEmail(email: String): Boolean
-
     fun existsByPhone(phone: String): Boolean
 
-    fun findByEmailOrThrow(email: String): Customer
+    fun findByIdOrThrow(id: Long): Customer
 }

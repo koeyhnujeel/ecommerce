@@ -4,6 +4,7 @@ import com.zunza.ecommerce.domain.Customer
 import com.zunza.ecommerce.dto.SignupCommand
 import com.zunza.ecommerce.port.PasswordEncoder
 import com.zunza.ecommerce.repository.CustomerRepository
+import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.service.AuthService
 import com.zunza.ecommerce.support.exception.BusinessException
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -17,8 +18,9 @@ import io.mockk.verify
 
 class AuthServiceUnitTests : FunSpec ({
     val customerRepository = mockk<CustomerRepository>()
+    val userRepository = mockk<UserRepository>()
     val passwordEncoder = mockk<PasswordEncoder>()
-    val authService = AuthService(customerRepository, passwordEncoder)
+    val authService = AuthService(customerRepository, userRepository, passwordEncoder)
 
     afterTest {
         clearAllMocks()
@@ -26,7 +28,7 @@ class AuthServiceUnitTests : FunSpec ({
 
     test("사용 가능한 이메일이면 예외를 던지지 않는다.") {
         val email = "new@email.com"
-        every { customerRepository.existsByEmail(email) } returns false
+        every { userRepository.existsByEmail(email) } returns false
 
         shouldNotThrow<BusinessException> {
             authService.validateEmailAvailable(email)
@@ -35,7 +37,7 @@ class AuthServiceUnitTests : FunSpec ({
 
     test("이메일이 이미 존재하면 예외를 던진다.") {
         val email = "duplicate@email.com"
-        every { customerRepository.existsByEmail(email) } returns true
+        every { userRepository.existsByEmail(email) } returns true
 
         val exception = shouldThrow<BusinessException> {
             authService.validateEmailAvailable(email)
