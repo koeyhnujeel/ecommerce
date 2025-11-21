@@ -1,5 +1,6 @@
-package com.zunza.ecommerce.dto
+package com.zunza.ecommerce.dto.request
 
+import com.zunza.ecommerce.dto.SignupCommand
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
