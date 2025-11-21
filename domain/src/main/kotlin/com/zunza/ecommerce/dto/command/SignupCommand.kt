@@ -1,4 +1,4 @@
-package com.zunza.ecommerce.dto
+package com.zunza.ecommerce.dto.command
 
 data class SignupCommand(
     val email: String,
