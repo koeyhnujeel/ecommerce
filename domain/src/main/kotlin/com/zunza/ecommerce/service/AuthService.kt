@@ -1,10 +1,13 @@
 package com.zunza.ecommerce.service
 
 import com.zunza.ecommerce.domain.Customer
-import com.zunza.ecommerce.dto.LoginCommand
-import com.zunza.ecommerce.dto.SignupCommand
+import com.zunza.ecommerce.dto.command.LoginCommand
+import com.zunza.ecommerce.dto.result.LoginResult
+import com.zunza.ecommerce.dto.command.SignupCommand
 import com.zunza.ecommerce.port.PasswordEncoder
+import com.zunza.ecommerce.port.TokenProvider
 import com.zunza.ecommerce.repository.CustomerRepository
+import com.zunza.ecommerce.repository.RefreshTokenRepository
 import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.support.exception.ErrorCode
 import com.zunza.ecommerce.util.NicknameGenerator
@@ -14,7 +17,9 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val customerRepository: CustomerRepository,
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val tokenProvider: TokenProvider,
+    private val refreshTokenRepository: RefreshTokenRepository
 ) {
     fun validateEmailAvailable(email: String) {
         if (userRepository.existsByEmail(email)) {
@@ -41,6 +46,21 @@ class AuthService(
         )
 
         customerRepository.save(customer)
+    }
+
+    fun authenticate(command: LoginCommand): LoginResult {
+        val user = userRepository.findByEmailOrNull(command.email)
+            ?: throw ErrorCode.INVALID_CREDENTIALS.exception()
+
+        if (!passwordEncoder.matches(command.password, user.password)) {
+            throw ErrorCode.INVALID_CREDENTIALS.exception()
+        }
+
+        val accessToken = tokenProvider.generateAccessToken(user.id, user.userType)
+        val refreshToken = tokenProvider.generateRefreshToken(user.id)
+        refreshTokenRepository.save(user.id, refreshToken)
+
+        return LoginResult(accessToken, refreshToken)
     }
 
     private fun getRandomNickname(): String =
