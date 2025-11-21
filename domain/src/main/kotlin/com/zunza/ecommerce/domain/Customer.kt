@@ -3,7 +3,7 @@ package com.zunza.ecommerce.domain
 import com.zunza.ecommerce.domain.enums.UserType
 import java.time.LocalDateTime
 
-class Customer(
+data class Customer(
     val id: Long = 0,
     val email: String,
     val password: String,
