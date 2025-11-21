@@ -1,9 +1,14 @@
 package com.zunza.ecommerce.unit
 
 import com.zunza.ecommerce.domain.Customer
-import com.zunza.ecommerce.dto.SignupCommand
+import com.zunza.ecommerce.domain.User
+import com.zunza.ecommerce.domain.enums.UserType
+import com.zunza.ecommerce.dto.command.LoginCommand
+import com.zunza.ecommerce.dto.command.SignupCommand
 import com.zunza.ecommerce.port.PasswordEncoder
+import com.zunza.ecommerce.port.TokenProvider
 import com.zunza.ecommerce.repository.CustomerRepository
+import com.zunza.ecommerce.repository.RefreshTokenRepository
 import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.service.AuthService
 import com.zunza.ecommerce.support.exception.BusinessException
@@ -15,16 +20,35 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.time.LocalDateTime
 
 class AuthServiceUnitTests : FunSpec ({
     val customerRepository = mockk<CustomerRepository>()
     val userRepository = mockk<UserRepository>()
     val passwordEncoder = mockk<PasswordEncoder>()
-    val authService = AuthService(customerRepository, userRepository, passwordEncoder)
+    val tokenProvider = mockk<TokenProvider>()
+    val refreshTokenRepository = mockk<RefreshTokenRepository>()
+
+    val authService = AuthService(
+        customerRepository,
+        userRepository,
+        passwordEncoder,
+        tokenProvider,
+        refreshTokenRepository
+    )
 
     afterTest {
         clearAllMocks()
     }
+
+    val user = User(
+        id = 1L,
+        email = "xxx@example.com",
+        password = "password1!",
+        userType = UserType.CUSTOMER,
+        LocalDateTime.now(),
+        LocalDateTime.now()
+    )
 
     test("사용 가능한 이메일이면 예외를 던지지 않는다.") {
         val email = "new@email.com"
@@ -81,5 +105,64 @@ class AuthServiceUnitTests : FunSpec ({
         verify(exactly = 1) { passwordEncoder.encode(command.password) }
         verify(exactly = 1) { customerRepository.existsByNickname(any<String>()) }
         verify(exactly = 1) { customerRepository.save(any<Customer>()) }
+    }
+
+    test("로그인 시 액세스 토큰과 리프레시 토큰을 반환한다.") {
+        val command = LoginCommand("xxx@example.com", "password1!")
+        val accessToken = "_accessToken_"
+        val refreshToken = "_refreshToken_"
+
+        every { userRepository.findByEmailOrNull(command.email) } returns user
+        every { passwordEncoder.matches(command.password, any<String>()) } returns true
+        every { tokenProvider.generateAccessToken(user.id, user.userType) } returns accessToken
+        every { tokenProvider.generateRefreshToken(user.id) } returns refreshToken
+        every { refreshTokenRepository.save(user.id, refreshToken) } returns Unit
+
+        val loginResult = authService.authenticate(command)
+
+        loginResult.accessToken shouldBe accessToken
+        loginResult.refreshToken shouldBe refreshToken
+        verify(exactly = 1) { userRepository.findByEmailOrNull(command.email) }
+        verify(exactly = 1) { passwordEncoder.matches(command.password, any<String>()) }
+        verify(exactly = 1) { tokenProvider.generateAccessToken(user.id, user.userType) }
+        verify(exactly = 1) { tokenProvider.generateRefreshToken(user.id) }
+        verify(exactly = 1) { refreshTokenRepository.save(user.id, refreshToken) }
+    }
+
+    test("유효하지 않는 이메일로 로그인 시 예외를 던진다.") {
+        val command = LoginCommand("xxx@example.com", "password1!")
+
+        every { userRepository.findByEmailOrNull(command.email) } returns null
+
+        val exception = shouldThrow<BusinessException> {
+            authService.authenticate(command)
+        }
+
+        exception.errorCode.status shouldBe 401
+        exception.message shouldBe "이메일 또는 비밀번호를 확인해 주세요."
+        verify(exactly = 1) { userRepository.findByEmailOrNull(command.email) }
+        verify(exactly = 0) { passwordEncoder.matches(command.password, any<String>()) }
+        verify(exactly = 0) { tokenProvider.generateAccessToken(any<Long>(), any<UserType>()) }
+        verify(exactly = 0) { tokenProvider.generateRefreshToken(any<Long>()) }
+        verify(exactly = 0) { refreshTokenRepository.save(any<Long>(), any<String>()) }
+    }
+
+    test("유효하지 않는 비밀번호로 로그인 시 예외를 던진다.") {
+        val command = LoginCommand("xxx@example.com", "password1!")
+
+        every { userRepository.findByEmailOrNull(command.email) } returns user
+        every { passwordEncoder.matches(command.password, any<String>()) } returns false
+
+        val exception = shouldThrow<BusinessException> {
+            authService.authenticate(command)
+        }
+
+        exception.errorCode.status shouldBe 401
+        exception.message shouldBe "이메일 또는 비밀번호를 확인해 주세요."
+        verify(exactly = 1) { userRepository.findByEmailOrNull(command.email) }
+        verify(exactly = 1) { passwordEncoder.matches(command.password, any<String>()) }
+        verify(exactly = 0) { tokenProvider.generateAccessToken(any<Long>(), any<UserType>()) }
+        verify(exactly = 0) { tokenProvider.generateRefreshToken(any<Long>()) }
+        verify(exactly = 0) { refreshTokenRepository.save(any<Long>(), any<String>()) }
     }
 })
