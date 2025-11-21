@@ -1,4 +1,4 @@
-package com.zunza.ecommerce.adapter
+package com.zunza.ecommerce.security.crypto
 
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.zunza.ecommerce.port.PasswordEncoder
