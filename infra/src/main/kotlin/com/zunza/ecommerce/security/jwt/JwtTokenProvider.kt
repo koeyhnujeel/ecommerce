@@ -10,11 +10,13 @@ import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.Date
 import java.util.UUID
 import javax.crypto.SecretKey
 
+@Component
 class JwtTokenProvider(
     @Value("\${jwt.secret-key}")
     private val secretKey: String,
