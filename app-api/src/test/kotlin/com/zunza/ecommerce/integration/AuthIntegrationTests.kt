@@ -100,8 +100,7 @@ class AuthIntegrationTests(
                 jsonPath("$.result") { value("SUCCESS") }
             }
 
-        val customer = customerRepository.findByEmailOrThrow(request.email)
-        customer.id shouldBe 2L
+        val customer = customerRepository.findByIdOrThrow(2L)
         customer.email shouldBe request.email
         passwordEncoder.matches(request.password, customer.password) shouldBe true
         customer.name shouldBe request.name
