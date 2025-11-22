@@ -3,13 +3,17 @@ package com.zunza.ecommerce.port
 import com.zunza.ecommerce.domain.enums.UserType
 
 interface TokenProvider {
-    fun generateAccessToken(customerId: Long, userType: UserType): String
+    fun generateAccessToken(userId: Long, userType: UserType): String
 
-    fun generateRefreshToken(customerId: Long): String
+    fun generateRefreshToken(userId: Long): String
 
     fun validateToken(token: String): Boolean
 
-    fun getCustomerId(token: String): Long
+    fun getUserId(token: String): Long
 
     fun getUserRole(token: String): String
+
+    fun getJti(token: String): String
+
+    fun getRemainingTime(token: String): Long
 }

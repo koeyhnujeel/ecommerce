@@ -8,6 +8,7 @@ import com.zunza.ecommerce.port.PasswordEncoder
 import com.zunza.ecommerce.port.TokenProvider
 import com.zunza.ecommerce.repository.CustomerRepository
 import com.zunza.ecommerce.repository.RefreshTokenRepository
+import com.zunza.ecommerce.repository.TokenBlacklistRepository
 import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.support.exception.ErrorCode
 import com.zunza.ecommerce.util.NicknameGenerator
@@ -19,7 +20,8 @@ class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val tokenProvider: TokenProvider,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val tokenBlacklistRepository: TokenBlacklistRepository
 ) {
     fun validateEmailAvailable(email: String) {
         if (userRepository.existsByEmail(email)) {
@@ -61,6 +63,17 @@ class AuthService(
         refreshTokenRepository.save(user.id, refreshToken)
 
         return LoginResult(accessToken, refreshToken)
+    }
+
+    fun invalidateToken(token: String, userId: Long) {
+        val remainingTime = tokenProvider.getRemainingTime(token)
+
+        if (remainingTime > 0) {
+            val jti = tokenProvider.getJti(token)
+            tokenBlacklistRepository.add(jti, token, remainingTime)
+        }
+
+        refreshTokenRepository.deleteById(userId)
     }
 
     private fun getRandomNickname(): String =
