@@ -9,6 +9,7 @@ import com.zunza.ecommerce.port.PasswordEncoder
 import com.zunza.ecommerce.port.TokenProvider
 import com.zunza.ecommerce.repository.CustomerRepository
 import com.zunza.ecommerce.repository.RefreshTokenRepository
+import com.zunza.ecommerce.repository.TokenBlacklistRepository
 import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.service.AuthService
 import com.zunza.ecommerce.support.exception.BusinessException
@@ -21,6 +22,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.time.LocalDateTime
+import java.util.UUID
 
 class AuthServiceUnitTests : FunSpec ({
     val customerRepository = mockk<CustomerRepository>()
@@ -28,13 +30,15 @@ class AuthServiceUnitTests : FunSpec ({
     val passwordEncoder = mockk<PasswordEncoder>()
     val tokenProvider = mockk<TokenProvider>()
     val refreshTokenRepository = mockk<RefreshTokenRepository>()
+    val tokenBlacklistRepository = mockk<TokenBlacklistRepository>()
 
     val authService = AuthService(
         customerRepository,
         userRepository,
         passwordEncoder,
         tokenProvider,
-        refreshTokenRepository
+        refreshTokenRepository,
+        tokenBlacklistRepository,
     )
 
     afterTest {
@@ -164,5 +168,24 @@ class AuthServiceUnitTests : FunSpec ({
         verify(exactly = 0) { tokenProvider.generateAccessToken(any<Long>(), any<UserType>()) }
         verify(exactly = 0) { tokenProvider.generateRefreshToken(any<Long>()) }
         verify(exactly = 0) { refreshTokenRepository.save(any<Long>(), any<String>()) }
+    }
+
+    test("로그아웃 시 액세스 토큰을 블랙리스트에 등록하고 리프레시 토큰은 저장소에서 삭제한다.") {
+        val token = "access_token"
+        val userId = 1L
+        val remainingTime = 3231231243L
+        val jti = UUID.randomUUID().toString()
+
+        every { tokenProvider.getRemainingTime(token) } returns remainingTime
+        every { tokenProvider.getJti(token) } returns jti
+        every { tokenBlacklistRepository.add(jti, token, remainingTime) } returns Unit
+        every { refreshTokenRepository.deleteById(userId) } returns true
+
+        authService.invalidateToken(token, userId)
+
+        verify(exactly =  1) { tokenProvider.getRemainingTime(token) }
+        verify(exactly =  1) { tokenProvider.getJti(token) }
+        verify(exactly =  1) { tokenBlacklistRepository.add(jti, token, remainingTime) }
+        verify(exactly =  1) { refreshTokenRepository.deleteById(userId) }
     }
 })

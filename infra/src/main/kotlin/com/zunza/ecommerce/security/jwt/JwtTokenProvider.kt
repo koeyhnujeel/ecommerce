@@ -26,13 +26,13 @@ class JwtTokenProvider(
     private val refreshTokenExpireTime: Long,
 ) : TokenProvider {
     override fun generateAccessToken(
-        customerId: Long,
+        userId: Long,
         userType: UserType,
     ): String {
         val now = Instant.now()
         return Jwts
             .builder()
-            .subject(customerId.toString())
+            .subject(userId.toString())
             .claim("role", userType.toString())
             .claim("jti", UUID.randomUUID().toString())
             .issuedAt(Date(now.toEpochMilli()))
@@ -41,11 +41,11 @@ class JwtTokenProvider(
             .compact()
     }
 
-    override fun generateRefreshToken(customerId: Long): String {
+    override fun generateRefreshToken(userId: Long): String {
         val now = Instant.now()
         return Jwts
             .builder()
-            .subject(customerId.toString())
+            .subject(userId.toString())
             .claim("jti", UUID.randomUUID().toString())
             .issuedAt(Date(now.toEpochMilli()))
             .expiration(Date(now.plusMillis(refreshTokenExpireTime).toEpochMilli()))
@@ -69,7 +69,7 @@ class JwtTokenProvider(
         }
     }
 
-    override fun getCustomerId(token: String): Long {
+    override fun getUserId(token: String): Long {
         val claims = parseClaims(token)
         return claims.subject.toLong()
     }
@@ -79,7 +79,22 @@ class JwtTokenProvider(
         return claims["role"] as String
     }
 
-    fun parseClaims(token: String): Claims {
+    override fun getJti(token: String): String {
+        val claims = parseClaims(token)
+        return claims["jti"] as String
+    }
+
+    override fun getRemainingTime(token: String): Long {
+        val expiration = getTokenExpiration(token)
+        val now = Date()
+        return maxOf(0, expiration.time - now.time)
+    }
+
+    private fun getTokenExpiration(token: String): Date {
+        return parseClaims(token).expiration
+    }
+
+    private fun parseClaims(token: String): Claims {
         return try {
             Jwts.parser()
                 .verifyWith(getKey())

@@ -4,15 +4,18 @@ import com.zunza.ecommerce.dto.request.LoginRequest
 import com.zunza.ecommerce.dto.request.SignupRequest
 import com.zunza.ecommerce.dto.response.LoginResponse
 import com.zunza.ecommerce.service.AuthService
+import com.zunza.ecommerce.support.exception.ErrorCode
 import com.zunza.ecommerce.support.resopnse.ApiResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -62,6 +65,22 @@ class AuthController(
             .body(ApiResponse.success(loginResponse))
     }
 
+    @PostMapping("/logout")
+    fun logout(
+        @RequestHeader("Authorization") authHeader: String,
+        @AuthenticationPrincipal userId: Long
+    ): ResponseEntity<ApiResponse<Any>> {
+        val token = extractToken(authHeader)
+            ?: throw ErrorCode.MISSING_TOKEN.exception()
+
+        authService.invalidateToken(token, userId)
+        val cookie = generateRefreshTokenCookie("", 0L)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(ApiResponse.success())
+    }
+
     private fun generateRefreshTokenCookie(
         value: String,
         maxAge: Long,
@@ -71,4 +90,12 @@ class AuthController(
         .path("/")
         .maxAge(Duration.ofDays(maxAge))
         .build()
+
+    private fun extractToken(header: String?): String? {
+        if (!header.isNullOrBlank() && header.startsWith("Bearer ")) {
+            return header.substring(7)
+        }
+
+        return null
+    }
 }

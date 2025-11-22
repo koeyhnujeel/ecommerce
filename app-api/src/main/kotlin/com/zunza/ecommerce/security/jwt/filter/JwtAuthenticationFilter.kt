@@ -1,6 +1,8 @@
 package com.zunza.ecommerce.security.jwt.filter
 
 import com.zunza.ecommerce.port.TokenProvider
+import com.zunza.ecommerce.repository.TokenBlacklistRepository
+import com.zunza.ecommerce.support.exception.CustomTokenException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -13,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 class JwtAuthenticationFilter(
     private val tokenProvider: TokenProvider,
+    private val tokenBlacklistRepository: TokenBlacklistRepository
 ) : OncePerRequestFilter() {
     companion object {
         private const val BEARER = "Bearer "
@@ -34,6 +37,10 @@ class JwtAuthenticationFilter(
         val token = extractToken(authorizationHeader)
 
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+            if (isBlacklisted(token)) {
+                throw CustomTokenException("토큰이 만료되었습니다.")
+            }
+
             val authentication = getAuthentication(token)
             SecurityContextHolder.getContext().authentication = authentication
         }
@@ -49,9 +56,14 @@ class JwtAuthenticationFilter(
         return ""
     }
 
+    private fun isBlacklisted(token: String): Boolean {
+        val jti = tokenProvider.getJti(token)
+        return tokenBlacklistRepository.existsByJti(jti)
+    }
+
     private fun getAuthentication(token: String): Authentication {
         return UsernamePasswordAuthenticationToken(
-            tokenProvider.getCustomerId(token),
+            tokenProvider.getUserId(token),
             null,
             listOf(SimpleGrantedAuthority("ROLE_${tokenProvider.getUserRole(token)}"))
         )
