@@ -4,7 +4,7 @@ import com.zunza.ecommerce.domain.enums.PartnerStatus
 import com.zunza.ecommerce.domain.enums.UserType
 import java.time.LocalDateTime
 
-class Partner(
+data class Partner(
     val id: Long,
     val email: String,
     val password: String,
