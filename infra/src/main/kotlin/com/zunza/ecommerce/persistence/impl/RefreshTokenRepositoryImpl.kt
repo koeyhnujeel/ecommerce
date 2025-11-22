@@ -28,4 +28,8 @@ class RefreshTokenRepositoryImpl(
     override fun findByUserId(userId: Long): String? {
         return stringRedisTemplate.opsForValue().get(REFRESH_TOKEN_KEY_PREFIX + userId)
     }
+
+    override fun deleteById(userId: Long): Boolean {
+        return stringRedisTemplate.delete(REFRESH_TOKEN_KEY_PREFIX + userId)
+    }
 }

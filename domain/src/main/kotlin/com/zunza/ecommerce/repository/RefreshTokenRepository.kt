@@ -4,4 +4,6 @@ interface RefreshTokenRepository {
     fun save(userId: Long, refreshToken: String)
 
     fun findByUserId(userId: Long): String?
+
+    fun deleteById(userId: Long): Boolean
 }
