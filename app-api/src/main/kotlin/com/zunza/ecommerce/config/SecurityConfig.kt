@@ -2,6 +2,7 @@ package com.zunza.ecommerce.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.port.TokenProvider
+import com.zunza.ecommerce.repository.TokenBlacklistRepository
 import com.zunza.ecommerce.security.jwt.filter.JwtAuthenticationFilter
 import com.zunza.ecommerce.security.jwt.filter.JwtExceptionFilter
 import com.zunza.ecommerce.security.jwt.handler.JwtAccessDeniedHandler
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val objectMapper: ObjectMapper,
     private val tokenProvider: TokenProvider,
+    private val tokenBlacklistRepository: TokenBlacklistRepository
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -37,7 +39,7 @@ class SecurityConfig(
                 UsernamePasswordAuthenticationFilter::class.java,
             )
             .addFilterBefore(
-                JwtAuthenticationFilter(tokenProvider),
+                JwtAuthenticationFilter(tokenProvider, tokenBlacklistRepository),
                 UsernamePasswordAuthenticationFilter::class.java,
             )
             .exceptionHandling { exception ->
