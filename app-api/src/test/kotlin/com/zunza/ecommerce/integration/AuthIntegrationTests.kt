@@ -3,11 +3,14 @@ package com.zunza.ecommerce.integration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.config.TestContainersConfig
 import com.zunza.ecommerce.domain.Customer
+import com.zunza.ecommerce.domain.enums.UserType
 import com.zunza.ecommerce.dto.request.LoginRequest
 import com.zunza.ecommerce.dto.request.SignupRequest
 import com.zunza.ecommerce.port.PasswordEncoder
+import com.zunza.ecommerce.port.TokenProvider
 import com.zunza.ecommerce.repository.CustomerRepository
 import com.zunza.ecommerce.repository.RefreshTokenRepository
+import com.zunza.ecommerce.repository.TokenBlacklistRepository
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -31,6 +34,8 @@ class AuthIntegrationTests(
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val customerRepository: CustomerRepository,
     @Autowired private val refreshTokenRepository: RefreshTokenRepository,
+    @Autowired private val tokenProvider: TokenProvider,
+    @Autowired private val tokenBlacklistRepository: TokenBlacklistRepository,
 ) : FunSpec({
 
     beforeSpec {
@@ -156,5 +161,27 @@ class AuthIntegrationTests(
                 jsonPath("$.result") { value("ERROR") }
                 jsonPath("$.error.message") { value("이메일 또는 비밀번호를 확인해 주세요.") }
             }
+    }
+
+    test("로그아웃 성공 시 액세스 토큰을 블랙리스트 등록하고 리프레시 토큰은 저장소에서 삭제한다.") {
+        val accessToken = tokenProvider.generateAccessToken(3L, UserType.CUSTOMER)
+        val refreshToken = tokenProvider.generateRefreshToken(3L)
+        refreshTokenRepository.save(3L, refreshToken)
+
+        mockMvc
+            .post("/api/auth/logout") {
+                header("Authorization", "Bearer $accessToken")
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.result") { value("SUCCESS") }
+                cookie {
+                    maxAge("refreshToken", 0)
+                    value("refreshToken", "")
+                }
+            }
+
+        val jti = tokenProvider.getJti(accessToken)
+        tokenBlacklistRepository.existsByJti(jti) shouldBe true
+        refreshTokenRepository.findByUserId(3L) shouldBe null
     }
 })
