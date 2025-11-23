@@ -3,6 +3,7 @@ package com.zunza.ecommerce.controller
 import com.zunza.ecommerce.dto.request.LoginRequest
 import com.zunza.ecommerce.dto.request.SignupRequest
 import com.zunza.ecommerce.dto.response.LoginResponse
+import com.zunza.ecommerce.dto.response.RefreshTokenResponse
 import com.zunza.ecommerce.service.AuthService
 import com.zunza.ecommerce.support.exception.ErrorCode
 import com.zunza.ecommerce.support.resopnse.ApiResponse
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -56,9 +58,9 @@ class AuthController(
     fun login(
         @Valid @RequestBody request: LoginRequest
     ): ResponseEntity<ApiResponse<LoginResponse>> {
-        val loginResult = authService.authenticate(request.toCommand())
-        val cookie = generateRefreshTokenCookie(loginResult.refreshToken, 7L)
-        val loginResponse = LoginResponse.of(loginResult.accessToken)
+        val authenticateResult = authService.authenticate(request.toCommand())
+        val cookie = generateRefreshTokenCookie(authenticateResult.refreshToken, 7L)
+        val loginResponse = LoginResponse.of(authenticateResult.accessToken)
 
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -79,6 +81,23 @@ class AuthController(
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(ApiResponse.success())
+    }
+
+    @PostMapping("/refresh")
+    fun refreshToken(
+        @RequestHeader("Authorization") authHeader: String,
+        @CookieValue("refreshToken") refreshToken: String,
+    ): ResponseEntity<ApiResponse<RefreshTokenResponse>> {
+        val expiredToken = extractToken(authHeader)
+            ?: throw ErrorCode.MISSING_TOKEN.exception()
+
+        val refreshTokenResult = authService.refreshToken(expiredToken, refreshToken)
+        val cookie = generateRefreshTokenCookie(refreshTokenResult.newRefreshToken, 7L)
+        val refreshTokenResponse = RefreshTokenResponse.of(refreshTokenResult.newAccessToken)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(ApiResponse.success(refreshTokenResponse))
     }
 
     private fun generateRefreshTokenCookie(

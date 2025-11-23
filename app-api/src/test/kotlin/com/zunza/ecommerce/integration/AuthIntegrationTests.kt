@@ -12,8 +12,11 @@ import com.zunza.ecommerce.repository.CustomerRepository
 import com.zunza.ecommerce.repository.RefreshTokenRepository
 import com.zunza.ecommerce.repository.TokenBlacklistRepository
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.equals.shouldNotBeEqual
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import jakarta.servlet.http.Cookie
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -183,5 +186,30 @@ class AuthIntegrationTests(
         val jti = tokenProvider.getJti(accessToken)
         tokenBlacklistRepository.existsByJti(jti) shouldBe true
         refreshTokenRepository.findByUserId(3L) shouldBe null
+    }
+
+    test("유효한 토큰으로 재발급 요청 시 새로운 액세스 토큰과 리프레시 토큰을 응답한다") {
+        val userId = 4L
+        val expiredToken = tokenProvider.generateAccessToken(userId, UserType.CUSTOMER)
+        val refreshToken = tokenProvider.generateRefreshToken(userId)
+        refreshTokenRepository.save(userId, refreshToken)
+
+        mockMvc
+            .post("/api/auth/refresh") {
+                header("Authorization", "Bearer $expiredToken")
+                cookie(Cookie("refreshToken", refreshToken))
+            }.andExpect {
+                status { isOk() }
+                jsonPath("$.result") { value("SUCCESS") }
+                jsonPath("$.data.accessToken") { exists() }
+                cookie {
+                    exists("refreshToken")
+                    maxAge("refreshToken", 7 * 24 * 60 * 60)
+                }
+            }
+
+        val newRefreshToken = refreshTokenRepository.findByUserId(userId)
+        newRefreshToken shouldNotBe null
+        newRefreshToken shouldNotBe refreshToken
     }
 })

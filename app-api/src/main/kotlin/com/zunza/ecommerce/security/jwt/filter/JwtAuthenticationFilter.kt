@@ -20,11 +20,10 @@ class JwtAuthenticationFilter(
     companion object {
         private const val BEARER = "Bearer "
         private const val AUTHORIZATION_HEADER = "Authorization"
-        private const val REFRESH_URI = "/api/auth/token/refresh"
+        private const val REFRESH_URI = "/api/auth/refresh"
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        println(request.requestURI)
         return request.requestURI == REFRESH_URI
     }
 
