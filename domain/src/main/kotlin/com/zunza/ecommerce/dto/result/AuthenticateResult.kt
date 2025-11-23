@@ -1,11 +1,11 @@
 package com.zunza.ecommerce.dto.result
 
-data class LoginResult(
+data class AuthenticateResult(
     val accessToken: String,
     val refreshToken: String
 ) {
     companion object {
         fun of(accessToken: String, refreshToken: String) =
-            LoginResult(accessToken, refreshToken)
+            AuthenticateResult(accessToken, refreshToken)
     }
 }
