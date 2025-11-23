@@ -188,4 +188,34 @@ class AuthServiceUnitTests : FunSpec ({
         verify(exactly =  1) { tokenBlacklistRepository.add(jti, token, remainingTime) }
         verify(exactly =  1) { refreshTokenRepository.deleteById(userId) }
     }
+
+    test("토큰 재발급 시 기존 리프레시 토큰은 삭제하고 새로운 액세스 토큰과 리프레시 토큰을 반환한다.") {
+        val userId = 1L
+        val userRole = "CUSTOMER"
+        val expiredToken = "_expiredToken_"
+        val refreshToken = "_refreshToken_"
+        val foundRefreshToken = "_refreshToken_"
+        val newAccessToken = "_newAccessToken_"
+        val newRefreshToken = "_newRefreshToken_"
+
+        every { tokenProvider.validateToken(refreshToken) } returns true
+        every { tokenProvider.getUserId(expiredToken) } returns userId
+        every { refreshTokenRepository.findByUserId(userId) } returns foundRefreshToken
+        every { tokenProvider.getUserRole(expiredToken) } returns userRole
+        every { tokenProvider.generateAccessToken(userId, any< UserType>()) } returns newAccessToken
+        every { tokenProvider.generateRefreshToken(userId) } returns newRefreshToken
+        every { refreshTokenRepository.save(userId, newRefreshToken) } returns Unit
+
+        val refreshTokenResult = authService.refreshToken(expiredToken, refreshToken)
+
+        refreshTokenResult.newAccessToken shouldBe newAccessToken
+        refreshTokenResult.newRefreshToken shouldBe newRefreshToken
+        verify(exactly = 1) { tokenProvider.validateToken(refreshToken) }
+        verify(exactly = 1) { tokenProvider.getUserId(expiredToken) }
+        verify(exactly = 1) { refreshTokenRepository.findByUserId(userId) }
+        verify(exactly = 1) { tokenProvider.getUserRole(expiredToken) }
+        verify(exactly = 1) { tokenProvider.generateAccessToken(userId, any< UserType>()) }
+        verify(exactly = 1) { tokenProvider.generateRefreshToken(userId) }
+        verify(exactly = 1) { refreshTokenRepository.save(userId, newRefreshToken) }
+    }
 })
