@@ -15,6 +15,7 @@ import com.zunza.ecommerce.repository.UserRepository
 import com.zunza.ecommerce.support.exception.ErrorCode
 import com.zunza.ecommerce.util.NicknameGenerator
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AuthService(
@@ -37,6 +38,7 @@ class AuthService(
         }
     }
 
+    @Transactional
     fun createCustomer(command: SignupCommand) {
         val encodedPassword = passwordEncoder.encode(command.password)
         val nickname = getRandomNickname()

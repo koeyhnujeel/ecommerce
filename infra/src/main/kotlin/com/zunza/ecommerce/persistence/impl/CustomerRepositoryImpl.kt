@@ -9,7 +9,6 @@ import com.zunza.ecommerce.persistence.mapper.toDomain
 import com.zunza.ecommerce.repository.CustomerRepository
 import com.zunza.ecommerce.support.exception.ErrorCode
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class CustomerRepositoryImpl(
@@ -21,7 +20,6 @@ class CustomerRepositoryImpl(
         return customerProfileJpaRepository.existsByPhone(phone)
     }
 
-    @Transactional
     override fun save(customer: Customer): Customer {
         val userEntity = UserEntity(
             email = customer.email,

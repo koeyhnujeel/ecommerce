@@ -2,8 +2,8 @@ package com.zunza.ecommerce.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.config.TestContainersConfig
-import com.zunza.ecommerce.domain.Customer
 import com.zunza.ecommerce.domain.enums.UserType
+import com.zunza.ecommerce.dto.command.SignupCommand
 import com.zunza.ecommerce.dto.request.LoginRequest
 import com.zunza.ecommerce.dto.request.SignupRequest
 import com.zunza.ecommerce.port.PasswordEncoder
@@ -11,9 +11,8 @@ import com.zunza.ecommerce.port.TokenProvider
 import com.zunza.ecommerce.repository.CustomerRepository
 import com.zunza.ecommerce.repository.RefreshTokenRepository
 import com.zunza.ecommerce.repository.TokenBlacklistRepository
+import com.zunza.ecommerce.service.AuthService
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.equals.shouldNotBeEqual
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import jakarta.servlet.http.Cookie
@@ -39,18 +38,12 @@ class AuthIntegrationTests(
     @Autowired private val refreshTokenRepository: RefreshTokenRepository,
     @Autowired private val tokenProvider: TokenProvider,
     @Autowired private val tokenBlacklistRepository: TokenBlacklistRepository,
+    @Autowired private val authService: AuthService
 ) : FunSpec({
 
     beforeSpec {
-        val customer = Customer.of(
-            "xxx@example.com",
-            passwordEncoder.encode("password1!"),
-            "홍길동",
-            "행복한 호랑이 1",
-            "010-1234-5678"
-        )
-
-        customerRepository.save(customer)
+        val command = SignupCommand("new@example.com", "password1!", "홍길동", "010-1234-5678")
+        authService.createCustomer(command)
     }
 
     test("사용 가능한 이메일이면 200을 응답한다.") {
