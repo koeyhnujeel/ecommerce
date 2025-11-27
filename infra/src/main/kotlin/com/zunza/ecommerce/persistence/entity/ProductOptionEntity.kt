@@ -27,6 +27,8 @@ class ProductOptionEntity(
     var additionalPrice: BigDecimal,
     @Column(nullable = false)
     var stockQuantity: Int,
+    @Column(nullable = false)
+    val displayOrder: Int,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     val product: ProductEntity,
