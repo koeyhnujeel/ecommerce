@@ -6,13 +6,13 @@ import org.springframework.web.multipart.MultipartFile
 
 class ImageFileValidator : ConstraintValidator<ValidImageFile, MultipartFile> {
     private lateinit var allowedExtensions: List<String>
+    private lateinit var allowedMimeTypes: List<String>
     private var maxSizeInBytes: Long = 0
-    private var required: Boolean = true
 
     override fun initialize(constraintAnnotation: ValidImageFile) {
         this.allowedExtensions = constraintAnnotation.allowedExtensions.map { it }
+        this.allowedMimeTypes = constraintAnnotation.allowedMimeTypes.map { it }
         this.maxSizeInBytes = constraintAnnotation.maxSizeMB * 1024 * 1024
-        this.required = constraintAnnotation.required
     }
 
     override fun isValid(
@@ -20,14 +20,6 @@ class ImageFileValidator : ConstraintValidator<ValidImageFile, MultipartFile> {
         context: ConstraintValidatorContext
     ): Boolean {
         if (file == null || file.isEmpty) {
-            if (required) {
-                context.disableDefaultConstraintViolation()
-                context.buildConstraintViolationWithTemplate(
-                    "이미지 파일을 첨부해 주세요."
-                ).addConstraintViolation()
-
-                return false
-            }
             return true
         }
 
@@ -36,6 +28,10 @@ class ImageFileValidator : ConstraintValidator<ValidImageFile, MultipartFile> {
         }
 
         if (!validateFileExtension(file, context)) {
+            return false
+        }
+
+        if (!validateMimeType(file, context)) {
             return false
         }
 
@@ -63,13 +59,30 @@ class ImageFileValidator : ConstraintValidator<ValidImageFile, MultipartFile> {
     ): Boolean {
         val originalFilename = file.originalFilename ?: return false
         val extension = originalFilename
-            .substringAfterLast('.')
+            .substringAfterLast('.', "")
             .lowercase()
 
         if (extension.isEmpty() || extension !in allowedExtensions) {
             context.disableDefaultConstraintViolation()
             context.buildConstraintViolationWithTemplate(
                 "지원하지 않는 이미지 파일 형식입니다."
+            ).addConstraintViolation()
+
+            return false
+        }
+        return true
+    }
+
+    private fun validateMimeType(
+        file: MultipartFile,
+        context: ConstraintValidatorContext
+    ): Boolean {
+        val contentType = file.contentType ?: return false
+
+        if (contentType !in allowedMimeTypes) {
+            context.disableDefaultConstraintViolation()
+            context.buildConstraintViolationWithTemplate(
+                "유효하지 않은 이미 파일입니다."
             ).addConstraintViolation()
 
             return false

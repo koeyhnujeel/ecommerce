@@ -4,17 +4,19 @@ import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.web.multipart.MultipartFile
 
-class ImageFileListValidator : ConstraintValidator<ValidImageFileList, List<MultipartFile>> {
+class ImageFilesValidator : ConstraintValidator<ValidImageFiles, List<MultipartFile>> {
     private lateinit var allowedExtensions: List<String>
+    private lateinit var allowedMimeTypes: List<String>
     private var maxSizeInBytes: Long = 0
+    private var minCount: Int = 0
     private var maxCount: Int = 0
-    private var required = false
 
-    override fun initialize(constraintAnnotation: ValidImageFileList) {
+    override fun initialize(constraintAnnotation: ValidImageFiles) {
         this.allowedExtensions = constraintAnnotation.allowedExtensions.map { it }
+        this.allowedMimeTypes = constraintAnnotation.allowedMimeTypes.map { it }
         this.maxSizeInBytes = constraintAnnotation.maxSizeMB * 1024 * 1024
+        this.minCount = constraintAnnotation.minCount
         this.maxCount = constraintAnnotation.maxCount
-        this.required = constraintAnnotation.required
     }
 
     override fun isValid(
@@ -22,15 +24,15 @@ class ImageFileListValidator : ConstraintValidator<ValidImageFileList, List<Mult
         context: ConstraintValidatorContext
     ): Boolean {
         if (files.isNullOrEmpty()) {
-            if (required) {
-                context.disableDefaultConstraintViolation()
-                context.buildConstraintViolationWithTemplate(
-                    "이미지 파일들을 첨부해 주세요."
-                ).addConstraintViolation()
-
-                return false
-            }
             return true
+        }
+
+        if (files.size < minCount) {
+            context.disableDefaultConstraintViolation()
+            context.buildConstraintViolationWithTemplate(
+                "이미지 파일은 최소 ${minCount}개 이상 업로드 해주세요."
+            ).addConstraintViolation()
+            return false
         }
 
         if (files.size > maxCount) {
@@ -42,7 +44,7 @@ class ImageFileListValidator : ConstraintValidator<ValidImageFileList, List<Mult
         }
 
         files.forEachIndexed { index, file ->
-            if (!validateSingleFile(file, index, context)) {
+            if (!validateFile(file, index, context)) {
                 return false
             }
         }
@@ -50,7 +52,7 @@ class ImageFileListValidator : ConstraintValidator<ValidImageFileList, List<Mult
         return true
     }
 
-    private fun validateSingleFile(
+    private fun validateFile(
         file: MultipartFile,
         index: Int,
         context: ConstraintValidatorContext
@@ -65,7 +67,7 @@ class ImageFileListValidator : ConstraintValidator<ValidImageFileList, List<Mult
 
         val originalFilename = file.originalFilename ?: return false
         val extension = originalFilename
-            .substringAfterLast('.')
+            .substringAfterLast('.', "")
             .lowercase()
 
         if (extension !in allowedExtensions) {
@@ -73,6 +75,17 @@ class ImageFileListValidator : ConstraintValidator<ValidImageFileList, List<Mult
             context.buildConstraintViolationWithTemplate(
                 "파일 #${index + 1}: 지원하지 않는 이미지 파일 형식입니다."
             ).addConstraintViolation()
+            return false
+        }
+
+        val contentType = file.contentType ?: return false
+
+        if (contentType !in allowedMimeTypes) {
+            context.disableDefaultConstraintViolation()
+            context.buildConstraintViolationWithTemplate(
+                "파일 #${index + 1}: 유효하지 않은 이미 파일입니다."
+            ).addConstraintViolation()
+
             return false
         }
 

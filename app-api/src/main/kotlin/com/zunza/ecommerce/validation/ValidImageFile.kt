@@ -14,5 +14,5 @@ annotation class ValidImageFile(
     val payload: Array<KClass<out Payload>> = [],
     val maxSizeMB: Long = 3,
     val allowedExtensions: Array<String> = ["jpg", "jpeg", "png", "webp"],
-    val required: Boolean = true
+    val allowedMimeTypes: Array<String> = ["image/jpg", "image/jpeg", "image/png", "image/webp"]
 )
