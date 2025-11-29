@@ -17,7 +17,7 @@ class ProductCategoryEntity(
     val id: Long = 0,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    val product: ProductEntity,
+    var product: ProductEntity,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     val category: CategoryEntity

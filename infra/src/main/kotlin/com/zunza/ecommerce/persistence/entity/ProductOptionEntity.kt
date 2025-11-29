@@ -18,8 +18,6 @@ class ProductOptionEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     @Column(nullable = false)
-    val name: String,
-    @Column(nullable = false)
     val size: String,
     @Column(nullable = false)
     val color: String,
@@ -31,5 +29,5 @@ class ProductOptionEntity(
     val displayOrder: Int,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    val product: ProductEntity,
+    var product: ProductEntity,
 ) : BaseTimeEntity()

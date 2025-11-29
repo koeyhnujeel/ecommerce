@@ -1,6 +1,7 @@
 package com.zunza.ecommerce.persistence.entity
 
 import com.zunza.ecommerce.domain.enums.ProductStatus
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.math.BigDecimal
 
@@ -32,4 +34,25 @@ class ProductEntity(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", nullable = false)
     val brand: BrandEntity,
-) : BaseTimeEntity()
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val options: MutableList<ProductOptionEntity> = mutableListOf(),
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val images: MutableList<ProductImageEntity> = mutableListOf(),
+    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val productCategories: MutableList<ProductCategoryEntity> = mutableListOf()
+) : BaseTimeEntity() {
+
+    fun addOption(option: ProductOptionEntity) {
+        options.add(option)
+        option.product = this
+    }
+
+    fun addImage(image: ProductImageEntity) {
+        images.add(image)
+        image.product = this
+    }
+
+    fun addCategory(category: CategoryEntity) {
+        productCategories.add(ProductCategoryEntity(product = this, category = category))
+    }
+}
