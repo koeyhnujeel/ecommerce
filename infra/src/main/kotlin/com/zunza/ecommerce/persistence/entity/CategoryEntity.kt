@@ -20,7 +20,7 @@ class CategoryEntity(
     val name: String,
     @Column(nullable = false)
     val depth: Int,
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     val displayOrder: Int,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
