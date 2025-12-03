@@ -1,20 +1,19 @@
 package com.zunza.ecommerce.domain
 
 import com.zunza.ecommerce.domain.enums.UserType
-import java.time.LocalDateTime
 
 data class Customer(
     val id: Long = 0,
-    val email: String,
-    val password: String,
     val name: String,
     val nickname: String,
     val phone: String,
     var point: Long,
-    val userType: UserType,
-    val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null,
+    val user: User,
 ) {
+    val email: String get() = this.user.email
+    val password: String get() = this.user.password
+    val userType: UserType get() = this.user.userType
+
     companion object {
         fun of(
             email: String,
@@ -23,14 +22,14 @@ data class Customer(
             nickname: String,
             phone: String,
         ): Customer {
+            val user = User.of(email, password, UserType.CUSTOMER)
+
             return Customer(
-                email = email,
-                password = password,
                 name = name,
                 nickname = nickname,
                 phone = phone,
                 point = 0L,
-                userType = UserType.CUSTOMER
+                user = user
             )
         }
     }
