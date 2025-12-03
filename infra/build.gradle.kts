@@ -6,9 +6,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("at.favre.lib:bcrypt:0.10.2")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6") // JWT
+    implementation("software.amazon.awssdk:s3:2.39.4") // S3
+
+    testImplementation(project(":test-support"))
+
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
-
     runtimeOnly("org.postgresql:postgresql")
 }
 
