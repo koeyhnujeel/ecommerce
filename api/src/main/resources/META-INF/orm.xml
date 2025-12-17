@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://www.hibernate.org/xsd/orm/mapping"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.hibernate.org/xsd/orm/mapping
+                                     https://hibernate.org/xsd/orm/mapping/mapping-3.1.0.xsd">
+
+    <access>FIELD</access>
+
+    <mapped-superclass class="com.zunza.ecommerce.domain.AbstractEntity">
+        <attributes>
+            <id name="id">
+                <column name = "id"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </mapped-superclass>
+
+    <entity class="com.zunza.ecommerce.domain.account.Account">
+        <table name="account"/>
+
+        <attributes>
+            <basic name="passwordHash">
+                <column name="password_hash" nullable="false" length="200"/>
+            </basic>
+            <basic name="status">
+                <column name="status" nullable="false" length="50"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="role">
+                <column name="role" nullable="false" length="50"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="registeredAt">
+                <column name="registered_at" nullable="false"/>
+            </basic>
+            <basic name="activatedAt">
+                <column name="activated_at" nullable="true"/>
+            </basic>
+            <basic name="lastLoginAt">
+                <column name="last_login_at" nullable="true"/>
+            </basic>
+            <basic name="deactivatedAt">
+                <column name="deactivated_at" nullable="true"/>
+            </basic>
+
+            <embedded name="email"/>
+        </attributes>
+    </entity>
+
+    <entity class="com.zunza.ecommerce.domain.customer.Customer">
+        <table name="customer"/>
+
+        <attributes>
+            <basic name="accountId">
+                <column name="account_id" unique="true" nullable="false" length="100"/>
+            </basic>
+            <basic name="name">
+                <column name="name" nullable="false" length="100"/>
+            </basic>
+            <basic name="phone">
+                <column name="phone" nullable="false" length="250"/>
+            </basic>
+        </attributes>
+    </entity>
+
+    <embeddable class="com.zunza.ecommerce.domain.account.Email">
+        <attributes>
+            <basic name="address">
+                <column name="email_address" unique="true" nullable="false" length="200"/>
+            </basic>
+        </attributes>
+    </embeddable>
+</entity-mappings>
