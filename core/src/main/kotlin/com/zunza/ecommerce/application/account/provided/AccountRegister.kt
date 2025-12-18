@@ -1,15 +1,11 @@
 package com.zunza.ecommerce.application.account.provided
 
-import com.zunza.ecommerce.application.account.service.dto.request.AccountRegisterRequest
-import com.zunza.ecommerce.application.account.service.dto.response.AccountActivateResponse
-import com.zunza.ecommerce.application.account.service.dto.response.AccountDeactivateResponse
-import com.zunza.ecommerce.application.account.service.dto.response.AccountRegisterResponse
-import jakarta.validation.Valid
+import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 
 interface AccountRegister {
-    fun registerCustomerAccount(@Valid registerRequest: AccountRegisterRequest): AccountRegisterResponse
+    fun registerCustomerAccount(registerCommand: AccountRegisterCommand): Long
 
-    fun activateCustomerAccount(accountId: Long): AccountActivateResponse
+    fun activateCustomerAccount(accountId: Long)
 
-    fun deactivateCustomerAccount(accountId: Long): AccountDeactivateResponse
+    fun deactivateCustomerAccount(accountId: Long)
 }
