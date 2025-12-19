@@ -5,11 +5,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.persistence.account.AccountJpaRepository
 import com.zunza.ecommerce.adapter.persistence.customer.CustomerJpaRepository
-import com.zunza.ecommerce.adapter.webapi.account.dto.request.AccountRegisterRequest
 import com.zunza.ecommerce.adapter.webapi.account.dto.response.AccountRegisterResponse
 import com.zunza.ecommerce.adapter.webapi.account.fixture.AccountRequestFixture
 import com.zunza.ecommerce.application.account.provided.AccountRegister
-import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.config.TestConfiguration
 import com.zunza.ecommerce.config.TestContainersConfiguration
 import com.zunza.ecommerce.domain.account.AccountStatus
