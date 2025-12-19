@@ -5,12 +5,12 @@ import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.EmailSender
 import com.zunza.ecommerce.application.account.required.findByIdOrThrow
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
-import com.zunza.ecommerce.application.customer.required.CustomerRepository
+import com.zunza.ecommerce.application.customer.provided.CustomerRegister
+import com.zunza.ecommerce.application.customer.service.dto.command.CustomerRegisterCommand
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.DuplicateEmailException
 import com.zunza.ecommerce.domain.account.Email
 import com.zunza.ecommerce.domain.account.PasswordEncoder
-import com.zunza.ecommerce.domain.customer.Customer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,7 +20,7 @@ class AccountRegisterService(
     private val emailSender: EmailSender,
     private val passwordEncoder: PasswordEncoder,
     private val accountRepository: AccountRepository,
-    private val customerRepository: CustomerRepository,
+    private val customerRegister: CustomerRegister,
 ) : AccountRegister {
     override fun registerCustomerAccount(registerCommand: AccountRegisterCommand): Long {
         checkDuplicateEmail(registerCommand)
@@ -29,9 +29,7 @@ class AccountRegisterService(
 
         accountRepository.save(account)
 
-        val customer = Customer.register(account.id, registerCommand.name, registerCommand.phone)
-
-        customerRepository.save(customer)
+        registerCustomer(account, registerCommand)
 
         sendAccountActivationLink(account)
 
@@ -58,6 +56,19 @@ class AccountRegisterService(
         if (accountRepository.existsByEmail(Email(registerCommand.email))) {
             throw DuplicateEmailException()
         }
+    }
+
+    private fun registerCustomer(
+        account: Account,
+        accountRegisterCommand: AccountRegisterCommand
+    ) {
+        val customerRegisterCommand = CustomerRegisterCommand(
+            account.id,
+            accountRegisterCommand.name,
+            accountRegisterCommand.phone
+        )
+
+        customerRegister.register(customerRegisterCommand)
     }
 
     private fun sendAccountActivationLink(account: Account) {

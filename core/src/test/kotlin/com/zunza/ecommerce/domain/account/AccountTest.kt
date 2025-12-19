@@ -117,4 +117,24 @@ class CustomerTest {
 
         shouldThrow<IllegalArgumentException> { account.changePassword("newPassword1", passwordEncoder) }
     }
+
+    @Test
+    fun login() {
+        account.activate()
+
+        account.lastLoginAt shouldBe null
+
+        account.login("password1!", passwordEncoder)
+
+        account.lastLoginAt shouldNotBe null
+    }
+
+    @Test
+    fun loginFailInvalidPassword() {
+        account.activate()
+
+        shouldThrow<InvalidCredentialsException> { account.login("invalid1!", passwordEncoder) }
+
+        account.lastLoginAt shouldBe null
+    }
 }
