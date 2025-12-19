@@ -4,38 +4,39 @@ import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.EmailSender
 import com.zunza.ecommerce.application.account.required.findByIdOrThrow
 import com.zunza.ecommerce.application.account.service.AccountRegisterService
-import com.zunza.ecommerce.application.customer.required.CustomerRepository
+import com.zunza.ecommerce.application.customer.provided.CustomerRegister
 import com.zunza.ecommerce.application.fixture.AccountCommandFixture
 import com.zunza.ecommerce.domain.account.*
-import com.zunza.ecommerce.domain.customer.Customer
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
-
+@ExtendWith(MockKExtension::class)
 class AccountRegisterTest {
-    val registerCommand = AccountCommandFixture.createAccountRegisterCommand()
-
+    @MockK(relaxed = true)
     lateinit var emailSender: EmailSender
+
+    @MockK
     lateinit var passwordEncoder: PasswordEncoder
+
+    @MockK
     lateinit var accountRepository: AccountRepository
-    lateinit var customerRepository: CustomerRepository
+
+    @MockK(relaxed = true)
+    lateinit var customerRegister: CustomerRegister
+
+    @InjectMockKs
     lateinit var accountRegister: AccountRegisterService
 
-    @BeforeEach
-    fun setUp() {
-        emailSender = mockk<EmailSender>(relaxed = true)
-        passwordEncoder = mockk<PasswordEncoder>()
-        accountRepository = mockk<AccountRepository>()
-        customerRepository = mockk<CustomerRepository>()
-
-        accountRegister = AccountRegisterService(emailSender, passwordEncoder, accountRepository, customerRepository)
-    }
+    val registerCommand = AccountCommandFixture.createAccountRegisterCommand()
 
     @Test
     fun register() {
@@ -47,16 +48,11 @@ class AccountRegisterTest {
             every { email } returns accountEmail
         }
 
-        val mockCustomer = mockk<Customer>()
-
         mockkObject(Account.Companion)
-        mockkObject(Customer.Companion)
 
         every { Account.register(any(), any(), any()) } returns mockAccount
-        every { Customer.register(any(), any(), any()) } returns mockCustomer
         every { accountRepository.existsByEmail(any()) } returns false
         every { accountRepository.save(any()) } returns mockAccount
-        every { customerRepository.save(any()) } returns mockCustomer
 
         val result = accountRegister.registerCustomerAccount(registerCommand)
 
@@ -64,10 +60,9 @@ class AccountRegisterTest {
 
         verify(exactly = 1) {
             Account.register(registerCommand.email, registerCommand.password, passwordEncoder)
-            Customer.register(accountId, registerCommand.name, registerCommand.phone)
             accountRepository.existsByEmail(Email(registerCommand.email))
             accountRepository.save(mockAccount)
-            customerRepository.save(mockCustomer)
+            customerRegister.register(any())
             emailSender.send(registerCommand.email, any(), any())
         }
     }
@@ -80,7 +75,7 @@ class AccountRegisterTest {
     }
 
     @Test
-    fun customerRegisterRequestFail() {
+    fun accountRegisterCommandFail() {
         shouldThrow<IllegalArgumentException> {
             accountRegister.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(email = "zunza.com"))
         }
