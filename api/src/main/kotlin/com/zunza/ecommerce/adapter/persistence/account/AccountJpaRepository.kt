@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface AccountJpaRepository : JpaRepository<Account, Long> {
     fun existsByEmail(email: Email): Boolean
+
+    fun findByEmail(email: Email): Account?
 }

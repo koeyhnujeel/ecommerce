@@ -21,4 +21,8 @@ class AccountRepositoryImpl(
     override fun findByIdOrNull(accountId: Long): Account? {
         return accountJpaRepository.findByIdOrNull(accountId)
     }
+
+    override fun findByEmail(email: Email): Account? {
+        return accountJpaRepository.findByEmail(email)
+    }
 }

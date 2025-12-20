@@ -7,7 +7,7 @@ allOpen {
 dependencies {
     implementation("org.springframework:spring-context")
     implementation("org.springframework:spring-tx")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.hibernate.orm:hibernate-core")
 }
 
 tasks.named("bootJar") {

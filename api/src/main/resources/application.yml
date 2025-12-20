@@ -5,3 +5,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+jwt:
+  secret: VmVyeVBvd2VyZnVsU2VjcmV0S2V5Rm9fjdklafidfdmnfaicnxiouRpb25SZW1lbWJlcgfdasfsafsdfdsfaffdfadfafsadfasfsdafd==
+  access-token-ttl: 1800000
+  refresh-token-ttl: 604800000
