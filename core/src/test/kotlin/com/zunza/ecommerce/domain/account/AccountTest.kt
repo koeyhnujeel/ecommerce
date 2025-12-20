@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class CustomerTest {
+class AccountTest {
     val passwordEncoder = AccountFixture.createPasswordEncoder()
     lateinit var account: Account
 
