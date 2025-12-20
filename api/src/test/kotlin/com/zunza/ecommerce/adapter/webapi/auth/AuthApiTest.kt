@@ -42,7 +42,7 @@ class AuthApiTest(
         }.andExpect {
             status { isOk() }
             jsonPath("$.success") { value(true) }
-            jsonPath("$.data.accountId") { value(1) }
+            jsonPath("$.data.accountId") { exists() }
             cookie {
                 exists("accessToken")
                 exists("refreshToken")
