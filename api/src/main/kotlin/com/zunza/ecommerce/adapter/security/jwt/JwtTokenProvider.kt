@@ -1,0 +1,88 @@
+package com.zunza.ecommerce.adapter.security.jwt
+
+import com.zunza.ecommerce.application.auth.exception.ExpiredTokenException
+import com.zunza.ecommerce.application.auth.exception.InvalidSignatureTokenException
+import com.zunza.ecommerce.application.auth.exception.MalformedTokenException
+import com.zunza.ecommerce.application.auth.exception.UnsupportedTokenException
+import com.zunza.ecommerce.application.auth.required.TokenProvider
+import io.jsonwebtoken.*
+import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureException
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.stereotype.Component
+import java.time.Instant
+import java.util.*
+import javax.crypto.SecretKey
+
+@Component
+@EnableConfigurationProperties(JwtProperties::class)
+class JwtTokenProvider(
+    private val properties: JwtProperties,
+) : TokenProvider {
+    override fun generateAccessToken(accountId: Long, role: String): String {
+        val now = Instant.now()
+        return Jwts
+            .builder()
+            .subject(accountId.toString())
+            .claim("role", role)
+            .claim("jti", UUID.randomUUID().toString())
+            .issuedAt(Date(now.toEpochMilli()))
+            .expiration(Date(now.plusMillis(properties.accessTokenTtl).toEpochMilli()))
+            .signWith(getKey(), Jwts.SIG.HS256)
+            .compact()
+    }
+
+    override fun generateRefreshToken(accountId: Long): String {
+        val now = Instant.now()
+        return Jwts
+            .builder()
+            .subject(accountId.toString())
+            .claim("jti", UUID.randomUUID().toString())
+            .issuedAt(Date(now.toEpochMilli()))
+            .expiration(Date(now.plusMillis(properties.refreshTokenTtl).toEpochMilli()))
+            .signWith(getKey(), Jwts.SIG.HS256)
+            .compact()
+    }
+
+    override fun validateToken(token: String) {
+        try{
+            Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+        } catch (e: ExpiredJwtException) {
+            throw ExpiredTokenException()
+        } catch (e: SignatureException) {
+            throw InvalidSignatureTokenException()
+        } catch (e: MalformedJwtException) {
+            throw MalformedTokenException()
+        } catch (e: UnsupportedJwtException) {
+            throw UnsupportedTokenException()
+        }
+    }
+
+    override fun getAccountId(token: String): Long {
+        val claims = parseClaims(token)
+        return claims.subject.toLong()
+    }
+
+    override fun getAccountRole(token: String): String {
+        val claims = parseClaims(token)
+        return claims["role"] as String
+    }
+
+    private fun getKey(): SecretKey =
+        Keys.hmacShaKeyFor(properties.secret.toByteArray())
+
+    private fun parseClaims(token: String): Claims {
+        return try {
+            Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        } catch (e: ExpiredJwtException) {
+            e.claims
+        }
+    }
+}
