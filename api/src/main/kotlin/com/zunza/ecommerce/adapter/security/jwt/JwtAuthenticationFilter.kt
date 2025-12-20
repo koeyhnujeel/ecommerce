@@ -1,7 +1,9 @@
 package com.zunza.ecommerce.adapter.security.jwt
 
 import com.zunza.ecommerce.application.auth.exception.CustomTokenException
+import com.zunza.ecommerce.application.auth.exception.TokenBlacklistedException
 import com.zunza.ecommerce.application.auth.required.TokenProvider
+import com.zunza.ecommerce.application.auth.required.TokenRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver
 
 class JwtAuthenticationFilter(
     private val tokenProvider: TokenProvider,
+    private val tokenRepository: TokenRepository,
     private val resolver: HandlerExceptionResolver,
 ) : OncePerRequestFilter() {
     companion object {
@@ -29,6 +32,8 @@ class JwtAuthenticationFilter(
             val token = getTokenFromCookie(request)
 
             if (!token.isNullOrBlank()) {
+                checkBlacklist(token)
+
                 tokenProvider.validateToken(token)
 
                 val authentication = getAuthentication(token)
@@ -54,5 +59,11 @@ class JwtAuthenticationFilter(
         return request.cookies
             ?.firstOrNull { it.name == "accessToken" }
             ?.value
+    }
+
+    private fun checkBlacklist(token: String) {
+        if (tokenRepository.isBlacklisted(token)) {
+            throw TokenBlacklistedException()
+        }
     }
 }

@@ -71,6 +71,13 @@ class JwtTokenProvider(
         return claims["role"] as String
     }
 
+    override fun getRemainingTime(token: String): Long {
+        val expiration = parseClaims(token).expiration
+        val now = Date()
+
+        return maxOf(0, expiration.time - now.time)
+    }
+
     private fun getKey(): SecretKey =
         Keys.hmacShaKeyFor(properties.secret.toByteArray())
 
