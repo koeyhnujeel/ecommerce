@@ -8,7 +8,6 @@ import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
 import com.zunza.ecommerce.application.account.provided.AccountRegister
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
-import com.zunza.ecommerce.application.auth.required.TokenProvider
 import com.zunza.ecommerce.application.auth.required.TokenRepository
 import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
 import com.zunza.ecommerce.config.TestConfiguration
@@ -32,7 +31,6 @@ class AuthApiTest(
     val objectMapper: ObjectMapper,
     val accountRegister: AccountRegister,
     val tokenRepository: TokenRepository,
-    val tokenProvider: TokenProvider,
     val customerAuthentication: CustomerAuthentication
 ) {
     @Test
@@ -88,5 +86,42 @@ class AuthApiTest(
 
         tokenRepository.findById(loginResult.accountId) shouldBe null
         tokenRepository.isBlacklisted(loginResult.accessToken) shouldBe true
+    }
+
+    @Test
+    fun refresh() {
+        val registerCommand = AccountRegisterCommand("zunza112@email.com", "password111!", "홍길동", "01012335670")
+        accountRegister.registerCustomerAccount(registerCommand)
+
+        val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
+        val loginResult = customerAuthentication.login(loginCommand)
+
+        val result = mockMvc.post("/api/auth/refresh") {
+            cookie(Cookie("refreshToken", loginResult.refreshToken))
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.success") { value(true) }
+            jsonPath("$.data.accountId") { loginResult.accountId }
+            jsonPath("$.timestamp") { exists() }
+            cookie {
+                exists("accessToken")
+                exists("refreshToken")
+            }
+        }.andReturn()
+
+        val newAccessToken = result.response.cookies
+            .first { it.name == "accessToken" }
+            .value
+
+        val newRefreshToken = result.response.cookies
+            .first { it.name == "refreshToken" }
+            .value
+
+        newAccessToken shouldNotBe loginResult.accessToken
+        newRefreshToken shouldNotBe loginResult.refreshToken
+
+        val found = tokenRepository.findById(loginResult.accountId)
+
+        found shouldBe newRefreshToken
     }
 }

@@ -7,6 +7,7 @@ import com.zunza.ecommerce.application.auth.required.TokenRepository
 import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
 import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import com.zunza.ecommerce.application.auth.service.dto.result.LoginResult
+import com.zunza.ecommerce.application.auth.service.dto.result.RefreshResult
 import com.zunza.ecommerce.domain.account.InvalidCredentialsException
 import com.zunza.ecommerce.domain.account.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -37,6 +38,21 @@ class CustomerAuthenticationService(
         addBlacklist(logoutCommand.accessToken, remainingTime)
 
         tokenRepository.removeToken(logoutCommand.accountId)
+    }
+
+    override fun refresh(refreshToken: String): RefreshResult {
+        tokenProvider.validateToken(refreshToken)
+
+        val accountId = tokenProvider.getAccountId(refreshToken)
+
+        val account = accountFinder.findByIdOrThrow(accountId)
+
+        val newAccessToken = tokenProvider.generateAccessToken(account.id, account.role.toString())
+        val newRefreshToken = tokenProvider.generateRefreshToken(account.id)
+
+        tokenRepository.save(account.id, newRefreshToken)
+
+        return RefreshResult.of(account.id, newAccessToken, newRefreshToken)
     }
 
     private fun findAccount(loginCommand: LoginCommand) =

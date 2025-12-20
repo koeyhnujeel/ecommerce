@@ -4,6 +4,7 @@ import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
+import com.zunza.ecommerce.adapter.webapi.auth.dto.response.RefreshResponse
 import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
 import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import jakarta.validation.Valid
@@ -49,6 +50,21 @@ class AuthApi(
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
             .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(ApiResponse.success())
+    }
+
+    @PostMapping("/refresh")
+    fun refresh(
+        @CookieValue(value = "refreshToken") refreshToken: String,
+    ): ResponseEntity<ApiResponse<RefreshResponse>> {
+        val result = customerAuthentication.refresh(refreshToken)
+
+        val accessTokenCookie = getAccessTokenCookie(result.accessToken)
+        val refreshTokenCookie = getRefreshTokenCookie(result.refreshToken)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+            .body(ApiResponse.success(RefreshResponse.from(result.accountId)))
     }
 
     private fun getAccessTokenCookie(
