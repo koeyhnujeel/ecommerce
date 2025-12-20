@@ -1,0 +1,61 @@
+package com.zunza.ecommerce.adapter.webapi.auth
+
+import com.zunza.ecommerce.adapter.ApiResponse
+import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
+import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
+import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
+import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
+import jakarta.validation.Valid
+import org.springframework.http.HttpHeaders
+import org.springframework.http.ResponseCookie
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import java.time.Duration
+
+@RestController
+@RequestMapping("/api/auth")
+class AuthApi(
+    private val jwtProperties: JwtProperties,
+    private val customerAuthentication: CustomerAuthentication,
+    properties: JwtProperties
+) {
+    @PostMapping("/login")
+    fun login(
+        @RequestBody @Valid request: LoginRequest
+    ): ResponseEntity<ApiResponse<LoginResponse>> {
+        val result = customerAuthentication.login(request.toCommand())
+
+        val accessTokenCookie = getAccessTokenCookie(result.accessToken)
+        val refreshTokenCookie = getRefreshTokenCookie(result.refreshToken)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+            .body(ApiResponse.success(LoginResponse.from(result.accountId)))
+    }
+
+    private fun getAccessTokenCookie(
+        value: String,
+        maxAge: Duration = Duration.ofMillis(jwtProperties.accessTokenTtl)
+    ) = createResponseCookie("accessToken", value, maxAge, "Lax")
+
+    private fun getRefreshTokenCookie(
+        value: String,
+        maxAge: Duration = Duration.ofMillis(jwtProperties.refreshTokenTtl)
+    ) = createResponseCookie("refreshToken", value, maxAge, "Strict")
+
+    private fun createResponseCookie(
+        name: String,
+        value: String,
+        maxAge: Duration,
+        sameSite: String
+    ) = ResponseCookie.from(name, value)
+        .httpOnly(true)
+        .path("/")
+        .maxAge(maxAge)
+        .sameSite(sameSite)
+        .build()
+}
