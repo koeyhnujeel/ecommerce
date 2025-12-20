@@ -10,4 +10,6 @@ interface TokenProvider {
     fun getAccountId(token: String): Long
 
     fun getAccountRole(token: String): String
+
+    fun getRemainingTime(token: String): Long
 }

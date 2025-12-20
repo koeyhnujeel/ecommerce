@@ -4,6 +4,7 @@ import com.zunza.ecommerce.application.account.provided.AccountFinder
 import com.zunza.ecommerce.application.auth.required.TokenProvider
 import com.zunza.ecommerce.application.auth.required.TokenRepository
 import com.zunza.ecommerce.application.auth.service.CustomerAuthenticationService
+import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import com.zunza.ecommerce.application.fixture.LoginCommandFixture
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.InvalidCredentialsException
@@ -108,6 +109,27 @@ class CustomerAuthenticationTest {
             tokenProvider.generateAccessToken(any(), any())
             tokenProvider.generateRefreshToken(any())
             tokenRepository.save(any(), any())
+        }
+    }
+
+    @Test
+    fun logout() {
+        val accountId =1L
+        val accessToken = "accessToken"
+        val remainingTime = 1_000_000L
+
+        val logoutCommand = LogoutCommand.of(accountId, accessToken)
+
+        every { tokenProvider.getRemainingTime(any()) } returns remainingTime
+        every { tokenRepository.addBlacklist(any(), any()) } returns Unit
+        every { tokenRepository.removeToken(any()) } returns Unit
+        
+        customerAuthentication.logout(logoutCommand)
+
+        verify(exactly = 1) {
+            tokenProvider.getRemainingTime(accessToken)
+            tokenRepository.addBlacklist(accessToken, remainingTime)
+            tokenRepository.removeToken(accountId)
         }
     }
 }

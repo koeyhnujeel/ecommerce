@@ -3,6 +3,7 @@ package com.zunza.ecommerce.adapter.security.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.adapter.security.jwt.JwtAuthenticationFilter
 import com.zunza.ecommerce.application.auth.required.TokenProvider
+import com.zunza.ecommerce.application.auth.required.TokenRepository
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,7 +20,8 @@ class SecurityConfiguration(
     @param:Qualifier("handlerExceptionResolver")
     private val resolver: HandlerExceptionResolver,
     private val objectMapper: ObjectMapper,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
+    private val tokenRepository: TokenRepository,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -34,7 +36,7 @@ class SecurityConfiguration(
                 authorize.anyRequest().permitAll()
             }
             .addFilterBefore(
-                JwtAuthenticationFilter(tokenProvider, resolver),
+                JwtAuthenticationFilter(tokenProvider, tokenRepository, resolver),
                 UsernamePasswordAuthenticationFilter::class.java,
             )
 //            .exceptionHandling { exception ->
