@@ -123,13 +123,45 @@ class CustomerAuthenticationTest {
         every { tokenProvider.getRemainingTime(any()) } returns remainingTime
         every { tokenRepository.addBlacklist(any(), any()) } returns Unit
         every { tokenRepository.removeToken(any()) } returns Unit
-        
+
         customerAuthentication.logout(logoutCommand)
 
         verify(exactly = 1) {
             tokenProvider.getRemainingTime(accessToken)
             tokenRepository.addBlacklist(accessToken, remainingTime)
             tokenRepository.removeToken(accountId)
+        }
+    }
+
+    @Test
+    fun refresh() {
+        val refreshToken = "refreshToken"
+        val accountId = 1L
+        val accountRole = "ROLE_CUSTOMER"
+        val newAccessToken = "newAccessToken"
+        val newRefreshToken = "newRefreshToken"
+
+        val account = mockk<Account> {
+            every { id } returns accountId
+            every { role.toString() } returns accountRole
+        }
+
+        every { tokenProvider.validateToken(any()) } returns Unit
+        every { tokenProvider.getAccountId(any())} returns accountId
+        every { accountFinder.findByIdOrThrow(any()) } returns account
+        every { tokenProvider.generateAccessToken(any(), any()) } returns newAccessToken
+        every { tokenProvider.generateRefreshToken(any()) } returns newRefreshToken
+        every { tokenRepository.save(any(), any()) } returns Unit
+
+        customerAuthentication.refresh(refreshToken)
+
+        verify(exactly = 1) {
+            tokenProvider.validateToken(refreshToken)
+            tokenProvider.getAccountId(refreshToken)
+            accountFinder.findByIdOrThrow(accountId)
+            tokenProvider.generateAccessToken(accountId, accountRole)
+            tokenProvider.generateRefreshToken(accountId)
+            tokenRepository.save(accountId, newRefreshToken)
         }
     }
 }
