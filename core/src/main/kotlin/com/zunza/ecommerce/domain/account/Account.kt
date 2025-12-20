@@ -56,4 +56,12 @@ class Account private constructor(
 
         this.passwordHash = passwordEncoder.encode(password)
     }
+
+    fun login(password: String, passwordEncoder: PasswordEncoder) {
+        if (!passwordEncoder.matches(password, this.passwordHash)) {
+            throw InvalidCredentialsException()
+        }
+
+        this.lastLoginAt = LocalDateTime.now()
+    }
 }
