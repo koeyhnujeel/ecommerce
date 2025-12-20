@@ -5,14 +5,13 @@ import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
 import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
+import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.*
 import java.time.Duration
 
 @RestController
@@ -20,7 +19,6 @@ import java.time.Duration
 class AuthApi(
     private val jwtProperties: JwtProperties,
     private val customerAuthentication: CustomerAuthentication,
-    properties: JwtProperties
 ) {
     @PostMapping("/login")
     fun login(
@@ -35,6 +33,22 @@ class AuthApi(
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
             .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(ApiResponse.success(LoginResponse.from(result.accountId)))
+    }
+
+    @PostMapping("/logout")
+    fun logout(
+        @AuthenticationPrincipal accountId: Long,
+        @CookieValue(value = "accessToken") accessToken: String,
+    ): ResponseEntity<ApiResponse<Any>> {
+        customerAuthentication.logout(LogoutCommand.of(accountId, accessToken))
+
+        val accessTokenCookie = getAccessTokenCookie("", Duration.ZERO)
+        val refreshTokenCookie = getRefreshTokenCookie("", Duration.ZERO)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+            .body(ApiResponse.success())
     }
 
     private fun getAccessTokenCookie(
