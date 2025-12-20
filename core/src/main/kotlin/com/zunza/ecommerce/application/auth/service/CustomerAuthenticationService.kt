@@ -5,6 +5,7 @@ import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
 import com.zunza.ecommerce.application.auth.required.TokenProvider
 import com.zunza.ecommerce.application.auth.required.TokenRepository
 import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
+import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import com.zunza.ecommerce.application.auth.service.dto.result.LoginResult
 import com.zunza.ecommerce.domain.account.InvalidCredentialsException
 import com.zunza.ecommerce.domain.account.PasswordEncoder
@@ -30,6 +31,20 @@ class CustomerAuthenticationService(
         return LoginResult.of(account.id, accessToken, refreshToken)
     }
 
+    override fun logout(logoutCommand: LogoutCommand) {
+        val remainingTime = tokenProvider.getRemainingTime(logoutCommand.accessToken)
+
+        addBlacklist(logoutCommand.accessToken, remainingTime)
+
+        tokenRepository.removeToken(logoutCommand.accountId)
+    }
+
     private fun findAccount(loginCommand: LoginCommand) =
         accountFinder.findByEmail(loginCommand.email) ?: throw InvalidCredentialsException()
+
+    private fun addBlacklist(token: String, remainingTime: Long) {
+        if (remainingTime > 0L) {
+            tokenRepository.addBlacklist(token, remainingTime)
+        }
+    }
 }
