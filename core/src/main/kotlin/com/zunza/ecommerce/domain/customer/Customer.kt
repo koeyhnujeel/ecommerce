@@ -1,13 +1,21 @@
 package com.zunza.ecommerce.domain.customer
 
 import com.zunza.ecommerce.domain.AbstractEntity
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
+import jakarta.persistence.OneToMany
 
 @Entity
 class Customer private constructor(
     val accountId: Long,
     val name: String,
     val phone: String,
+    @OneToMany(
+        mappedBy = "customer",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true
+    )
+    val addresses: MutableList<Address> = mutableListOf()
 ) : AbstractEntity() {
     companion object {
         fun register(accountId: Long, name: String, phone: String, ): Customer {
@@ -21,5 +29,84 @@ class Customer private constructor(
                 phone = phone,
             )
         }
+    }
+
+    fun registerAddress(
+        alias: String,
+        roadAddress: String,
+        detailAddress: String,
+        receiverName: String,
+        zipcode: String,
+        isDefault: Boolean
+    ): Customer {
+        require(this.addresses.size < 10) { "주소는 최대 10개까지 등록 가능합니다." }
+
+        val shouldBeDefault = addresses.isEmpty() || isDefault
+
+        if (shouldBeDefault) {
+            clearDefaultAddress()
+        }
+
+        val address = Address.create(
+            alias = alias,
+            roadAddress = roadAddress,
+            detailAddress = detailAddress,
+            receiverName = receiverName,
+            zipcode = zipcode,
+            isDefault = shouldBeDefault
+        )
+
+        addresses.add(address)
+
+        return this
+    }
+
+    fun updateAddress(
+        addressId: Long,
+        alias: String,
+        roadAddress: String,
+        detailAddress: String,
+        receiverName: String,
+        zipcode: String,
+        isDefault: Boolean
+    ): Customer {
+        val address = findAddressById(addressId)
+
+        if (isDefault) clearDefaultAddress()
+
+        address.update(
+            alias = alias,
+            roadAddress = roadAddress,
+            detailAddress = detailAddress,
+            receiverName = receiverName,
+            zipcode = zipcode,
+            isDefault = isDefault
+        )
+
+        return this
+    }
+
+    fun deleteAddress(addressId: Long): Customer {
+        this.addresses.removeIf { it.id == addressId }
+
+        return this
+    }
+
+    fun updateDefaultAddress(addressId: Long): Customer {
+        clearDefaultAddress()
+
+        findAddressById(addressId).markAsDefault()
+
+        return this
+    }
+
+    private fun clearDefaultAddress() {
+        this.addresses.find { it.isDefault }
+            ?.unmarkAsDefault()
+    }
+
+    private fun findAddressById(addressId: Long): Address {
+        return this.addresses.find { it.id == addressId }
+            ?: throw AddressNotFoundException()
     }
 }
