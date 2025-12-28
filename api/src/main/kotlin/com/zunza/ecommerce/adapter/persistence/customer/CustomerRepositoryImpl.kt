@@ -11,4 +11,8 @@ class CustomerRepositoryImpl(
     override fun save(customer: Customer): Customer {
         return customerJpaRepository.save(customer)
     }
+
+    override fun findWithAddressesByAccountId(accountId: Long): Customer? {
+        return customerJpaRepository.findWithAddressesByAccountId(accountId)
+    }
 }
