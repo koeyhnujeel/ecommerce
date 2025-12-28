@@ -38,7 +38,7 @@ class Customer private constructor(
         receiverName: String,
         zipcode: String,
         isDefault: Boolean
-    ): Customer {
+    ) {
         require(this.addresses.size < 10) { "주소는 최대 10개까지 등록 가능합니다." }
 
         val shouldBeDefault = addresses.isEmpty() || isDefault
@@ -57,8 +57,6 @@ class Customer private constructor(
         )
 
         addresses.add(address)
-
-        return this
     }
 
     fun updateAddress(
@@ -69,7 +67,7 @@ class Customer private constructor(
         receiverName: String,
         zipcode: String,
         isDefault: Boolean
-    ): Customer {
+    ) {
         val address = findAddressById(addressId)
 
         if (isDefault) clearDefaultAddress()
@@ -82,22 +80,16 @@ class Customer private constructor(
             zipcode = zipcode,
             isDefault = isDefault
         )
-
-        return this
     }
 
-    fun deleteAddress(addressId: Long): Customer {
+    fun deleteAddress(addressId: Long) {
         this.addresses.removeIf { it.id == addressId }
-
-        return this
     }
 
-    fun updateDefaultAddress(addressId: Long): Customer {
+    fun updateDefaultAddress(addressId: Long) {
         clearDefaultAddress()
 
         findAddressById(addressId).markAsDefault()
-
-        return this
     }
 
     private fun clearDefaultAddress() {

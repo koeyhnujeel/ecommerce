@@ -47,7 +47,7 @@ class CustomerTest {
 
     @Test
     fun registerAddress() {
-        val result = customer.registerAddress(
+        customer.registerAddress(
             alias = "집",
             roadAddress = "서울특별시 관악구 관악로 1",
             detailAddress = "",
@@ -56,7 +56,7 @@ class CustomerTest {
             isDefault = true
         )
 
-        val address = result.addresses[0]
+        val address = customer.addresses[0]
 
         address.alias shouldBe "집"
         address.roadAddress shouldBe "서울특별시 관악구 관악로 1"
@@ -119,7 +119,7 @@ class CustomerTest {
         customer.addresses.add(address1)
         customer.addresses.add(address2)
 
-        val customer = customer.updateAddress(
+        customer.updateAddress(
             2L,
             alias = "직장",
             roadAddress = "서울특별시 관악구 관악로 4",
