@@ -9,7 +9,6 @@ import com.zunza.ecommerce.application.fixture.AddressCommandFixture
 import com.zunza.ecommerce.domain.customer.Customer
 import com.zunza.ecommerce.domain.customer.CustomerNotFoundException
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
