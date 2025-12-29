@@ -7,7 +7,7 @@ import com.zunza.ecommerce.adapter.persistence.account.AccountJpaRepository
 import com.zunza.ecommerce.adapter.persistence.customer.CustomerJpaRepository
 import com.zunza.ecommerce.adapter.webapi.account.dto.response.AccountRegisterResponse
 import com.zunza.ecommerce.adapter.webapi.account.fixture.AccountRequestFixture
-import com.zunza.ecommerce.application.account.provided.AccountRegister
+import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
 import com.zunza.ecommerce.config.TestConfiguration
 import com.zunza.ecommerce.config.TestContainersConfiguration
 import com.zunza.ecommerce.domain.account.AccountStatus
@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 class AccountApiTest(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val accountRegister: AccountRegister,
+    val accountCustomerAccountUseCase: RegisterCustomerAccountUseCase,
     val accountJpaRepository: AccountJpaRepository,
     val customerJpaRepository: CustomerJpaRepository
 ) {
@@ -70,7 +70,7 @@ class AccountApiTest(
 
     @Test
     fun activate() {
-        val accountId = accountRegister.registerCustomerAccount(AccountRequestFixture.createAccountRegisterCommand())
+        val accountId = accountCustomerAccountUseCase.registerCustomerAccount(AccountRequestFixture.createAccountRegisterCommand())
 
         mockMvc.post("/api/accounts/$accountId/activation") {
             contentType = MediaType.APPLICATION_JSON

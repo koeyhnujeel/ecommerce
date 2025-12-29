@@ -5,9 +5,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
-import com.zunza.ecommerce.application.account.provided.AccountRegister
+import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
-import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
+import com.zunza.ecommerce.application.auth.provided.LoginUseCase
 import com.zunza.ecommerce.application.auth.required.TokenRepository
 import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
 import com.zunza.ecommerce.config.TestConfiguration
@@ -29,15 +29,15 @@ import org.springframework.transaction.annotation.Transactional
 class AuthApiTest(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val accountRegister: AccountRegister,
+    val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
     val tokenRepository: TokenRepository,
-    val customerAuthentication: CustomerAuthentication
+    val loginUseCase: LoginUseCase
 ) {
     @Test
     fun login() {
         val registerCommand = AccountRegisterCommand("zunza@email.com", "password1!", "홍길동", "01012345678")
 
-        accountRegister.registerCustomerAccount(registerCommand)
+        registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
 
         val request = LoginRequest("zunza@email.com", "password1!")
 
@@ -64,10 +64,10 @@ class AuthApiTest(
     @Test
     fun logout() {
         val registerCommand = AccountRegisterCommand("zunza11@email.com", "password11!", "홍길동", "01012345670")
-        accountRegister.registerCustomerAccount(registerCommand)
+        registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
 
         val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
-        val loginResult = customerAuthentication.login(loginCommand)
+        val loginResult = loginUseCase.login(loginCommand)
 
         mockMvc.post("/api/auth/logout") {
             cookie(
@@ -91,10 +91,10 @@ class AuthApiTest(
     @Test
     fun refresh() {
         val registerCommand = AccountRegisterCommand("zunza112@email.com", "password111!", "홍길동", "01012335670")
-        accountRegister.registerCustomerAccount(registerCommand)
+        registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
 
         val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
-        val loginResult = customerAuthentication.login(loginCommand)
+        val loginResult = loginUseCase.login(loginCommand)
 
         val result = mockMvc.post("/api/auth/refresh") {
             cookie(Cookie("refreshToken", loginResult.refreshToken))

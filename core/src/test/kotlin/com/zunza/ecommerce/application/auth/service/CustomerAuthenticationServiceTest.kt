@@ -1,9 +1,8 @@
-package com.zunza.ecommerce.application.auth.provided
+package com.zunza.ecommerce.application.auth.service
 
-import com.zunza.ecommerce.application.account.provided.AccountFinder
+import com.zunza.ecommerce.application.account.provided.GetCustomerAccountUseCase
 import com.zunza.ecommerce.application.auth.required.TokenProvider
 import com.zunza.ecommerce.application.auth.required.TokenRepository
-import com.zunza.ecommerce.application.auth.service.CustomerAuthenticationService
 import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import com.zunza.ecommerce.application.fixture.LoginCommandFixture
 import com.zunza.ecommerce.domain.account.Account
@@ -12,30 +11,32 @@ import com.zunza.ecommerce.domain.account.PasswordEncoder
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.*
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
-class CustomerAuthenticationTest {
-    @MockK
+class CustomerAuthenticationServiceTest {
     lateinit var tokenProvider: TokenProvider
-
-    @MockK
-    lateinit var accountFinder: AccountFinder
-
-    @MockK
     lateinit var passwordEncoder: PasswordEncoder
-
-    @MockK
     lateinit var tokenRepository: TokenRepository
-
-    @InjectMockKs
+    lateinit var getCustomerAccountUseCase: GetCustomerAccountUseCase
     lateinit var customerAuthentication: CustomerAuthenticationService
 
     val command = LoginCommandFixture.createLoginCommand()
+
+    @BeforeEach
+    fun setUp() {
+        tokenProvider = mockk()
+        getCustomerAccountUseCase = mockk()
+        passwordEncoder = mockk()
+        tokenRepository = mockk()
+        customerAuthentication = CustomerAuthenticationService(tokenProvider, passwordEncoder, tokenRepository, getCustomerAccountUseCase)
+    }
+
+    @AfterEach
+    fun cleanUp() {
+        clearAllMocks()
+    }
 
     @Test
     fun login() {
@@ -50,7 +51,7 @@ class CustomerAuthenticationTest {
             every { role.toString() } returns accountRole
         }
 
-        every { accountFinder.findByEmail(any()) } returns account
+        every { getCustomerAccountUseCase.findByEmail(any()) } returns account
         every { account.login(any(), any()) } just Runs
         every { tokenProvider.generateAccessToken(any(), any()) } returns accessToken
         every { tokenProvider.generateRefreshToken(any()) } returns refreshToken
@@ -63,7 +64,7 @@ class CustomerAuthenticationTest {
         result.refreshToken shouldBe refreshToken
 
         verify(exactly = 1) {
-            accountFinder.findByEmail(command.email)
+            getCustomerAccountUseCase.findByEmail(command.email)
             account.login(command.password, passwordEncoder)
             tokenProvider.generateAccessToken(accountId, accountRole)
             tokenProvider.generateRefreshToken(accountId)
@@ -75,12 +76,12 @@ class CustomerAuthenticationTest {
     fun loginFailInvalidEmail() {
         val account = mockk<Account>()
 
-        every { accountFinder.findByEmail(any()) } returns null
+        every { getCustomerAccountUseCase.findByEmail(any()) } returns null
 
         shouldThrow<InvalidCredentialsException> { customerAuthentication.login(command) }
 
         verify(exactly = 1) {
-            accountFinder.findByEmail(command.email)
+            getCustomerAccountUseCase.findByEmail(command.email)
         }
 
         verify(exactly = 0) {
@@ -95,13 +96,13 @@ class CustomerAuthenticationTest {
     fun loginFailInvalidPassword() {
         val account = mockk<Account>()
 
-        every { accountFinder.findByEmail(any()) } returns account
+        every { getCustomerAccountUseCase.findByEmail(any()) } returns account
         every { account.login(any(), any()) } throws InvalidCredentialsException()
 
         shouldThrow<InvalidCredentialsException> { customerAuthentication.login(command) }
 
         verify(exactly = 1) {
-            accountFinder.findByEmail(command.email)
+            getCustomerAccountUseCase.findByEmail(command.email)
             account.login(command.password, passwordEncoder)
         }
 
@@ -148,7 +149,7 @@ class CustomerAuthenticationTest {
 
         every { tokenProvider.validateToken(any()) } returns Unit
         every { tokenProvider.getAccountId(any())} returns accountId
-        every { accountFinder.findByIdOrThrow(any()) } returns account
+        every { getCustomerAccountUseCase.findByIdOrThrow(any()) } returns account
         every { tokenProvider.generateAccessToken(any(), any()) } returns newAccessToken
         every { tokenProvider.generateRefreshToken(any()) } returns newRefreshToken
         every { tokenRepository.save(any(), any()) } returns Unit
@@ -158,7 +159,7 @@ class CustomerAuthenticationTest {
         verify(exactly = 1) {
             tokenProvider.validateToken(refreshToken)
             tokenProvider.getAccountId(refreshToken)
-            accountFinder.findByIdOrThrow(accountId)
+            getCustomerAccountUseCase.findByIdOrThrow(accountId)
             tokenProvider.generateAccessToken(accountId, accountRole)
             tokenProvider.generateRefreshToken(accountId)
             tokenRepository.save(accountId, newRefreshToken)

@@ -1,11 +1,15 @@
 package com.zunza.ecommerce.application.account.service
 
-import com.zunza.ecommerce.application.account.provided.AccountRegister
+import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.ChangePasswordUseCase
+import com.zunza.ecommerce.application.account.provided.DeactivateCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
 import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.EmailSender
 import com.zunza.ecommerce.application.account.required.findByIdOrThrow
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
-import com.zunza.ecommerce.application.customer.provided.CustomerRegister
+import com.zunza.ecommerce.application.account.service.dto.command.PasswordChangeCommand
+import com.zunza.ecommerce.application.customer.provided.RegisterCustomerUseCase
 import com.zunza.ecommerce.application.customer.service.dto.command.CustomerRegisterCommand
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.DuplicateEmailException
@@ -16,12 +20,16 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class AccountRegisterService(
+class AccountCommandService(
     private val emailSender: EmailSender,
     private val passwordEncoder: PasswordEncoder,
     private val accountRepository: AccountRepository,
-    private val customerRegister: CustomerRegister,
-) : AccountRegister {
+    private val registerCustomerUseCase: RegisterCustomerUseCase
+) : RegisterCustomerAccountUseCase,
+    ActivateCustomerAccountUseCase,
+    DeactivateCustomerAccountUseCase,
+    ChangePasswordUseCase
+{
     override fun registerCustomerAccount(registerCommand: AccountRegisterCommand): Long {
         checkDuplicateEmail(registerCommand)
 
@@ -52,6 +60,14 @@ class AccountRegisterService(
         accountRepository.save(account)
     }
 
+    override fun changePassword(changeCommand: PasswordChangeCommand) {
+        val account = accountRepository.findByIdOrThrow(changeCommand.accountId)
+
+        account.changePassword(changeCommand.newPassword, passwordEncoder)
+
+        accountRepository.save(account)
+    }
+
     private fun checkDuplicateEmail(registerCommand: AccountRegisterCommand) {
         if (accountRepository.existsByEmail(Email(registerCommand.email))) {
             throw DuplicateEmailException()
@@ -68,7 +84,7 @@ class AccountRegisterService(
             accountRegisterCommand.phone
         )
 
-        customerRegister.register(customerRegisterCommand)
+        registerCustomerUseCase.registerCustomer(customerRegisterCommand)
     }
 
     private fun sendAccountActivationLink(account: Account) {

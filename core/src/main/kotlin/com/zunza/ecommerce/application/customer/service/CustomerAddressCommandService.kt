@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class CustomerAddressService(
+class CustomerAddressCommandService(
     private val customerRepository: CustomerRepository
 ) : RegisterAddressUseCase,
     UpdateAddressUseCase,

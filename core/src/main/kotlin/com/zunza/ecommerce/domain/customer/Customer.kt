@@ -1,20 +1,13 @@
 package com.zunza.ecommerce.domain.customer
 
 import com.zunza.ecommerce.domain.AbstractEntity
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
-import jakarta.persistence.OneToMany
 
 @Entity
 class Customer private constructor(
     val accountId: Long,
     val name: String,
     val phone: String,
-    @OneToMany(
-        mappedBy = "customer",
-        cascade = [CascadeType.ALL],
-        orphanRemoval = true
-    )
     val addresses: MutableList<Address> = mutableListOf()
 ) : AbstractEntity() {
     companion object {
