@@ -1,7 +1,9 @@
 package com.zunza.ecommerce.application.auth.service
 
-import com.zunza.ecommerce.application.account.provided.AccountFinder
-import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
+import com.zunza.ecommerce.application.account.provided.GetCustomerAccountUseCase
+import com.zunza.ecommerce.application.auth.provided.LoginUseCase
+import com.zunza.ecommerce.application.auth.provided.LogoutUseCase
+import com.zunza.ecommerce.application.auth.provided.RefreshUseCase
 import com.zunza.ecommerce.application.auth.required.TokenProvider
 import com.zunza.ecommerce.application.auth.required.TokenRepository
 import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
@@ -11,16 +13,20 @@ import com.zunza.ecommerce.application.auth.service.dto.result.RefreshResult
 import com.zunza.ecommerce.domain.account.InvalidCredentialsException
 import com.zunza.ecommerce.domain.account.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class CustomerAuthenticationService(
     private val tokenProvider: TokenProvider,
-    private val accountFinder: AccountFinder,
     private val passwordEncoder: PasswordEncoder,
-    private val tokenRepository: TokenRepository
-) : CustomerAuthentication {
+    private val tokenRepository: TokenRepository,
+    private val getCustomerAccountUseCase: GetCustomerAccountUseCase,
+) : LoginUseCase,
+    LogoutUseCase,
+    RefreshUseCase {
     override fun login(loginCommand: LoginCommand): LoginResult {
-        val account = findAccount(loginCommand)
+        val account = getAccount(loginCommand)
 
         account.login(loginCommand.password, passwordEncoder)
 
@@ -45,7 +51,7 @@ class CustomerAuthenticationService(
 
         val accountId = tokenProvider.getAccountId(refreshToken)
 
-        val account = accountFinder.findByIdOrThrow(accountId)
+        val account = getCustomerAccountUseCase.findByIdOrThrow(accountId)
 
         val newAccessToken = tokenProvider.generateAccessToken(account.id, account.role.toString())
         val newRefreshToken = tokenProvider.generateRefreshToken(account.id)
@@ -55,8 +61,8 @@ class CustomerAuthenticationService(
         return RefreshResult.of(account.id, newAccessToken, newRefreshToken)
     }
 
-    private fun findAccount(loginCommand: LoginCommand) =
-        accountFinder.findByEmail(loginCommand.email) ?: throw InvalidCredentialsException()
+    private fun getAccount(loginCommand: LoginCommand) =
+        getCustomerAccountUseCase.findByEmail(loginCommand.email) ?: throw InvalidCredentialsException()
 
     private fun addBlacklist(token: String, remainingTime: Long) {
         if (remainingTime > 0L) {

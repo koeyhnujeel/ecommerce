@@ -5,7 +5,9 @@ import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.RefreshResponse
-import com.zunza.ecommerce.application.auth.provided.CustomerAuthentication
+import com.zunza.ecommerce.application.auth.provided.LoginUseCase
+import com.zunza.ecommerce.application.auth.provided.LogoutUseCase
+import com.zunza.ecommerce.application.auth.provided.RefreshUseCase
 import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
@@ -19,13 +21,15 @@ import java.time.Duration
 @RequestMapping("/api/auth")
 class AuthApi(
     private val jwtProperties: JwtProperties,
-    private val customerAuthentication: CustomerAuthentication,
+    private val loginUseCase: LoginUseCase,
+    private val logoutUseCase: LogoutUseCase,
+    private val refreshUseCase: RefreshUseCase,
 ) {
     @PostMapping("/login")
     fun login(
         @RequestBody @Valid request: LoginRequest
     ): ResponseEntity<ApiResponse<LoginResponse>> {
-        val result = customerAuthentication.login(request.toCommand())
+        val result = loginUseCase.login(request.toCommand())
 
         val accessTokenCookie = getAccessTokenCookie(result.accessToken)
         val refreshTokenCookie = getRefreshTokenCookie(result.refreshToken)
@@ -41,7 +45,7 @@ class AuthApi(
         @AuthenticationPrincipal accountId: Long,
         @CookieValue(value = "accessToken") accessToken: String,
     ): ResponseEntity<ApiResponse<Any>> {
-        customerAuthentication.logout(LogoutCommand.of(accountId, accessToken))
+        logoutUseCase.logout(LogoutCommand.of(accountId, accessToken))
 
         val accessTokenCookie = getAccessTokenCookie("", Duration.ZERO)
         val refreshTokenCookie = getRefreshTokenCookie("", Duration.ZERO)
@@ -56,7 +60,7 @@ class AuthApi(
     fun refresh(
         @CookieValue(value = "refreshToken") refreshToken: String,
     ): ResponseEntity<ApiResponse<RefreshResponse>> {
-        val result = customerAuthentication.refresh(refreshToken)
+        val result = refreshUseCase.refresh(refreshToken)
 
         val accessTokenCookie = getAccessTokenCookie(result.accessToken)
         val refreshTokenCookie = getRefreshTokenCookie(result.refreshToken)

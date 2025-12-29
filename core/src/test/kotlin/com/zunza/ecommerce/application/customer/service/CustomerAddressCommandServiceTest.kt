@@ -1,8 +1,7 @@
-package com.zunza.ecommerce.application.customer.provided
+package com.zunza.ecommerce.application.customer.service
 
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
 import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
-import com.zunza.ecommerce.application.customer.service.CustomerAddressService
 import com.zunza.ecommerce.application.customer.service.dto.command.DeleteAddressCommand
 import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultAddressCommand
 import com.zunza.ecommerce.application.fixture.AddressCommandFixture
@@ -12,23 +11,20 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
-class CustomerAddressServiceTest {
+class CustomerAddressCommandServiceTest {
     lateinit var customerRepository: CustomerRepository
-    lateinit var customerAddressService: CustomerAddressService
+    lateinit var customerAddressCommandService: CustomerAddressCommandService
 
     @BeforeEach
     fun setUp() {
         customerRepository = mockk()
-        customerAddressService = CustomerAddressService(customerRepository)
+        customerAddressCommandService = CustomerAddressCommandService(customerRepository)
     }
 
     @AfterEach
@@ -48,7 +44,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        val result = customerAddressService.registerAddress(command)
+        val result = customerAddressCommandService.registerAddress(command)
 
         result shouldBe accountId
 
@@ -78,7 +74,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            customerAddressService.registerAddress(command)
+            customerAddressCommandService.registerAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {
@@ -106,7 +102,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        customerAddressService.updateAddress(command)
+        customerAddressCommandService.updateAddress(command)
 
         verify(exactly = 1) {
             customerRepository.findWithAddressesOrThrow(accountId)
@@ -135,7 +131,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            customerAddressService.updateAddress(command)
+            customerAddressCommandService.updateAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {
@@ -165,7 +161,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        customerAddressService.deleteAddress(command)
+        customerAddressCommandService.deleteAddress(command)
 
         verify(exactly = 1) {
             customerRepository.findWithAddressesOrThrow(accountId)
@@ -187,7 +183,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            customerAddressService.deleteAddress(command)
+            customerAddressCommandService.deleteAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {
@@ -209,7 +205,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        customerAddressService.updateDefaultAddress(command)
+        customerAddressCommandService.updateDefaultAddress(command)
 
         verify(exactly = 1) {
             customerRepository.findWithAddressesOrThrow(accountId)
@@ -231,7 +227,7 @@ class CustomerAddressServiceTest {
         every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            customerAddressService.updateDefaultAddress(command)
+            customerAddressCommandService.updateDefaultAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {

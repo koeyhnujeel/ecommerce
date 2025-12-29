@@ -1,42 +1,37 @@
-package com.zunza.ecommerce.application.account.provided
+package com.zunza.ecommerce.application.account.service
 
 import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.EmailSender
 import com.zunza.ecommerce.application.account.required.findByIdOrThrow
-import com.zunza.ecommerce.application.account.service.AccountRegisterService
-import com.zunza.ecommerce.application.customer.provided.CustomerRegister
+import com.zunza.ecommerce.application.customer.provided.RegisterCustomerUseCase
 import com.zunza.ecommerce.application.fixture.AccountCommandFixture
 import com.zunza.ecommerce.domain.account.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
-import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(MockKExtension::class)
-class AccountRegisterTest {
-    @MockK(relaxed = true)
+class AccountCommandServiceTest {
     lateinit var emailSender: EmailSender
-
-    @MockK
     lateinit var passwordEncoder: PasswordEncoder
-
-    @MockK
     lateinit var accountRepository: AccountRepository
-
-    @MockK(relaxed = true)
-    lateinit var customerRegister: CustomerRegister
-
-    @InjectMockKs
-    lateinit var accountRegister: AccountRegisterService
+    lateinit var registerCustomerUseCase: RegisterCustomerUseCase
+    lateinit var accountCommandService: AccountCommandService
 
     val registerCommand = AccountCommandFixture.createAccountRegisterCommand()
+
+    @BeforeEach
+    fun setUp() {
+        emailSender = mockk()
+        passwordEncoder = mockk()
+        accountRepository = mockk()
+        registerCustomerUseCase = mockk()
+        accountCommandService = AccountCommandService(emailSender, passwordEncoder, accountRepository, registerCustomerUseCase)
+    }
 
     @Test
     fun register() {
@@ -53,8 +48,10 @@ class AccountRegisterTest {
         every { Account.register(any(), any(), any()) } returns mockAccount
         every { accountRepository.existsByEmail(any()) } returns false
         every { accountRepository.save(any()) } returns mockAccount
+        every { registerCustomerUseCase.registerCustomer(any()) } returns Unit
+        every { emailSender.send(any(), any(), any()) } returns Unit
 
-        val result = accountRegister.registerCustomerAccount(registerCommand)
+        val result = accountCommandService.registerCustomerAccount(registerCommand)
 
         result shouldBe accountId
 
@@ -62,7 +59,7 @@ class AccountRegisterTest {
             Account.register(registerCommand.email, registerCommand.password, passwordEncoder)
             accountRepository.existsByEmail(Email(registerCommand.email))
             accountRepository.save(mockAccount)
-            customerRegister.register(any())
+            registerCustomerUseCase.registerCustomer(any())
             emailSender.send(registerCommand.email, any(), any())
         }
     }
@@ -71,25 +68,25 @@ class AccountRegisterTest {
     fun registerFailDuplicateEmail() {
         every { accountRepository.existsByEmail(any()) } returns true
 
-        shouldThrow<DuplicateEmailException> { accountRegister.registerCustomerAccount(registerCommand) }
+        shouldThrow<DuplicateEmailException> { accountCommandService.registerCustomerAccount(registerCommand) }
     }
 
     @Test
     fun accountRegisterCommandFail() {
         shouldThrow<IllegalArgumentException> {
-            accountRegister.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(email = "zunza.com"))
+            accountCommandService.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(email = "zunza.com"))
         }
 
         shouldThrow<IllegalArgumentException> {
-            accountRegister.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(password = "invalid"))
+            accountCommandService.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(password = "invalid"))
         }
 
         shouldThrow<IllegalArgumentException> {
-            accountRegister.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(name = "이"))
+            accountCommandService.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(name = "이"))
         }
 
         shouldThrow<IllegalArgumentException> {
-            accountRegister.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(phone = "1012345678"))
+            accountCommandService.registerCustomerAccount(AccountCommandFixture.createAccountRegisterCommand(phone = "1012345678"))
         }
     }
 
@@ -102,7 +99,7 @@ class AccountRegisterTest {
         every { accountRepository.findByIdOrThrow(any()) } returns account
         every { accountRepository.save(any()) } returns account
 
-        accountRegister.activateCustomerAccount(accountId)
+        accountCommandService.activateCustomerAccount(accountId)
 
         verify(exactly = 1) {
             accountRepository.findByIdOrThrow(accountId)
@@ -115,7 +112,7 @@ class AccountRegisterTest {
     fun activateFailAccountNotFound() {
         every { accountRepository.findByIdOrNull(any()) } returns null
 
-        shouldThrow<AccountNotFoundException> { accountRegister.activateCustomerAccount(1_000L) }
+        shouldThrow<AccountNotFoundException> { accountCommandService.activateCustomerAccount(1_000L) }
     }
 
     @Test
@@ -127,7 +124,7 @@ class AccountRegisterTest {
         every { accountRepository.findByIdOrThrow(any()) } returns account
         every { accountRepository.save(any()) } returns account
 
-        accountRegister.deactivateCustomerAccount(accountId)
+        accountCommandService.deactivateCustomerAccount(accountId)
 
         verify(exactly = 1) {
             accountRepository.findByIdOrThrow(accountId)
@@ -140,6 +137,6 @@ class AccountRegisterTest {
     fun deactivateFailAccountNotFound() {
         every { accountRepository.findByIdOrNull(any()) } returns null
 
-        shouldThrow<AccountNotFoundException> { accountRegister.deactivateCustomerAccount(1_000L) }
+        shouldThrow<AccountNotFoundException> { accountCommandService.deactivateCustomerAccount(1_000L) }
     }
 }
