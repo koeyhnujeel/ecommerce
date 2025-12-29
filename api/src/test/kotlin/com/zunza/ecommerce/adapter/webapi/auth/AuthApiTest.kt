@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
+import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
 import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.application.auth.provided.LoginUseCase
@@ -15,6 +16,7 @@ import com.zunza.ecommerce.config.TestContainersConfiguration
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import jakarta.servlet.http.Cookie
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -29,17 +31,44 @@ import org.springframework.transaction.annotation.Transactional
 class AuthApiTest(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
+    val loginUseCase: LoginUseCase,
     val tokenRepository: TokenRepository,
-    val loginUseCase: LoginUseCase
+    val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
+    val activateCustomerAccountUseCase: ActivateCustomerAccountUseCase
 ) {
+    var accountId: Long = 0
+    lateinit var accessToken: String
+    lateinit var refreshToken: String
+
+    @BeforeEach
+    fun setUp() {
+        val registerCommand = AccountRegisterCommand(
+            email = "example@email.com",
+            password = "password1!",
+            name = "이순신",
+            phone = "01022225678",
+        )
+
+        accountId = registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
+
+        activateCustomerAccountUseCase.activateCustomerAccount(accountId)
+
+        val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
+
+        val loginResult = loginUseCase.login(loginCommand)
+
+        accessToken = loginResult.accessToken
+        refreshToken = loginResult.refreshToken
+    }
+
     @Test
     fun login() {
-        val registerCommand = AccountRegisterCommand("zunza@email.com", "password1!", "홍길동", "01012345678")
+        val command = AccountRegisterCommand("zunza@email.com", "password1!", "홍길동", "01012345678")
 
-        registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
+        val accountId = registerCustomerAccountUseCase.registerCustomerAccount(command)
+        activateCustomerAccountUseCase.activateCustomerAccount(accountId)
 
-        val request = LoginRequest("zunza@email.com", "password1!")
+        val request = LoginRequest(command.email, command.password)
 
         val result = mockMvc.post("/api/auth/login") {
             contentType = MediaType.APPLICATION_JSON
@@ -63,16 +92,10 @@ class AuthApiTest(
 
     @Test
     fun logout() {
-        val registerCommand = AccountRegisterCommand("zunza11@email.com", "password11!", "홍길동", "01012345670")
-        registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
-
-        val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
-        val loginResult = loginUseCase.login(loginCommand)
-
         mockMvc.post("/api/auth/logout") {
             cookie(
-                Cookie("accessToken", loginResult.accessToken),
-                Cookie("refreshToken", loginResult.refreshToken)
+                Cookie("accessToken", accessToken),
+                Cookie("refreshToken", refreshToken)
                 )
         }.andExpect {
             status { isOk() }
@@ -84,24 +107,18 @@ class AuthApiTest(
             }
         }
 
-        tokenRepository.findById(loginResult.accountId) shouldBe null
-        tokenRepository.isBlacklisted(loginResult.accessToken) shouldBe true
+        tokenRepository.findById(accountId) shouldBe null
+        tokenRepository.isBlacklisted(accessToken) shouldBe true
     }
 
     @Test
     fun refresh() {
-        val registerCommand = AccountRegisterCommand("zunza112@email.com", "password111!", "홍길동", "01012335670")
-        registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
-
-        val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
-        val loginResult = loginUseCase.login(loginCommand)
-
         val result = mockMvc.post("/api/auth/refresh") {
-            cookie(Cookie("refreshToken", loginResult.refreshToken))
+            cookie(Cookie("refreshToken", refreshToken))
         }.andExpect {
             status { isOk() }
             jsonPath("$.success") { value(true) }
-            jsonPath("$.data.accountId") { loginResult.accountId }
+            jsonPath("$.data.accountId") { accountId }
             jsonPath("$.timestamp") { exists() }
             cookie {
                 exists("accessToken")
@@ -117,10 +134,10 @@ class AuthApiTest(
             .first { it.name == "refreshToken" }
             .value
 
-        newAccessToken shouldNotBe loginResult.accessToken
-        newRefreshToken shouldNotBe loginResult.refreshToken
+        newAccessToken shouldNotBe accessToken
+        newRefreshToken shouldNotBe refreshToken
 
-        val found = tokenRepository.findById(loginResult.accountId)
+        val found = tokenRepository.findById(accountId)
 
         found shouldBe newRefreshToken
     }

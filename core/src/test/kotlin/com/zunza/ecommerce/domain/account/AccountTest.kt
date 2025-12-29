@@ -130,6 +130,13 @@ class AccountTest {
     }
 
     @Test
+    fun loginFailDeactivateAccount() {
+        shouldThrow<IllegalStateException> { account.login("password1!", passwordEncoder) }
+
+        account.lastLoginAt shouldBe null
+    }
+
+    @Test
     fun loginFailInvalidPassword() {
         account.activate()
 

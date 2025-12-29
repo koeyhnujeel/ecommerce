@@ -58,6 +58,8 @@ class Account private constructor(
     }
 
     fun login(password: String, passwordEncoder: PasswordEncoder) {
+        check(this.status == AccountStatus.ACTIVE) { "ACTIVE 상태가 아닙니다." }
+
         if (!passwordEncoder.matches(password, this.passwordHash)) {
             throw InvalidCredentialsException()
         }
