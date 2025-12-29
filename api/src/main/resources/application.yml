@@ -6,6 +6,11 @@ spring:
     hibernate:
       ddl-auto: update
 
+    mapping-resources:
+      - META-INF/common-orm.xml
+      - META-INF/account-orm.xml
+      - META-INF/customer-orm.xml
+
 jwt:
   secret: VmVyeVBvd2VyZnVsU2VjcmV0S2V5Rm9fjdklafidfdmnfaicnxiouRpb25SZW1lbWJlcgfdasfsafsdfdsfaffdfadfafsadfasfsdafd==
   access-token-ttl: 1800000
