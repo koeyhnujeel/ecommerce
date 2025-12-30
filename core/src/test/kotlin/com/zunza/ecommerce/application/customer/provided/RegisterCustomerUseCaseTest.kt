@@ -1,23 +1,27 @@
-package com.zunza.ecommerce.application.customer.service
+package com.zunza.ecommerce.application.customer.provided
 
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
+import com.zunza.ecommerce.application.customer.service.CustomerCommandService
 import com.zunza.ecommerce.application.customer.service.dto.command.CustomerRegisterCommand
 import com.zunza.ecommerce.domain.customer.Customer
 import io.kotest.assertions.throwables.shouldThrow
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-
-class CustomerCommandServiceTest{
+class RegisterCustomerUseCaseTest {
     lateinit var customerRepository: CustomerRepository
-    lateinit var customerCommandService: CustomerCommandService
+    lateinit var registerCustomerUseCase: RegisterCustomerUseCase
 
     @BeforeEach
     fun setUp() {
         customerRepository = mockk()
-        customerCommandService = CustomerCommandService(customerRepository)
+        registerCustomerUseCase = CustomerCommandService(customerRepository)
     }
 
     @AfterEach
@@ -36,7 +40,7 @@ class CustomerCommandServiceTest{
         every { Customer.register(any(), any(), any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        customerCommandService.registerCustomer(registerCommand)
+        registerCustomerUseCase.registerCustomer(registerCommand)
 
         verify(exactly = 1) {
             Customer.register(registerCommand.accountId, registerCommand.name, registerCommand.phone)

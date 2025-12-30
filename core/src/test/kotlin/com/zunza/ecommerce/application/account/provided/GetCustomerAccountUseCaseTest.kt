@@ -1,6 +1,7 @@
-package com.zunza.ecommerce.application.account.service
+package com.zunza.ecommerce.application.account.provided
 
 import com.zunza.ecommerce.application.account.required.AccountRepository
+import com.zunza.ecommerce.application.account.service.AccountQueryService
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.AccountNotFoundException
 import com.zunza.ecommerce.domain.account.Email
@@ -14,14 +15,14 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class AccountQueryServiceTest {
+class GetCustomerAccountUseCaseTest {
     lateinit var accountRepository: AccountRepository
-    lateinit var accountQueryService: AccountQueryService
+    lateinit var getCustomerAccountUseCase: GetCustomerAccountUseCase
 
     @BeforeEach
     fun setUp() {
         accountRepository = mockk()
-        accountQueryService = AccountQueryService(accountRepository)
+        getCustomerAccountUseCase = AccountQueryService(accountRepository)
     }
 
     @AfterEach
@@ -37,7 +38,7 @@ class AccountQueryServiceTest {
 
         every { accountRepository.findByEmail(any()) } returns account
 
-        accountQueryService.findByEmail(email)
+        getCustomerAccountUseCase.findByEmail(email)
 
         verify(exactly = 1) {
             accountRepository.findByEmail(Email(email))
@@ -50,7 +51,7 @@ class AccountQueryServiceTest {
 
         every { accountRepository.findByEmail(any()) } returns null
 
-        val account = accountQueryService.findByEmail(email)
+        val account = getCustomerAccountUseCase.findByEmail(email)
 
         account shouldBe null
     }
@@ -63,7 +64,7 @@ class AccountQueryServiceTest {
 
         every { accountRepository.findByIdOrNull(any()) } returns account
 
-        accountQueryService.findByIdOrThrow(accountId)
+        getCustomerAccountUseCase.findByIdOrThrow(accountId)
 
         verify(exactly = 1) {
             accountRepository.findByIdOrNull(accountId)
@@ -77,7 +78,7 @@ class AccountQueryServiceTest {
         every { accountRepository.findByIdOrNull(any()) } returns null
 
         shouldThrow<AccountNotFoundException> {
-            accountQueryService.findByIdOrThrow(accountId)
+            getCustomerAccountUseCase.findByIdOrThrow(accountId)
         }
 
         verify(exactly = 1) {
