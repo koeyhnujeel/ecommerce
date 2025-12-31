@@ -1,9 +1,9 @@
 package com.zunza.ecommerce.adapter.security.jwt
 
-import com.zunza.ecommerce.application.auth.exception.CustomTokenException
-import com.zunza.ecommerce.application.auth.exception.TokenBlacklistedException
-import com.zunza.ecommerce.application.auth.required.TokenProvider
-import com.zunza.ecommerce.application.auth.required.TokenRepository
+import com.zunza.ecommerce.adapter.security.jwt.exception.CustomTokenException
+import com.zunza.ecommerce.adapter.security.jwt.exception.TokenBlacklistedException
+import com.zunza.ecommerce.application.account.required.TokenProvider
+import com.zunza.ecommerce.application.account.required.TokenRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

@@ -4,7 +4,7 @@ import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.service.AccountQueryService
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.AccountNotFoundException
-import com.zunza.ecommerce.domain.account.Email
+import com.zunza.ecommerce.domain.shared.Email
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks

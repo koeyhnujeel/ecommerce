@@ -6,11 +6,11 @@ import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
 import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.LoginUseCase
 import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.required.TokenRepository
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
-import com.zunza.ecommerce.application.auth.provided.LoginUseCase
-import com.zunza.ecommerce.application.auth.required.TokenRepository
-import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
+import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
 import com.zunza.ecommerce.config.TestConfiguration
 import com.zunza.ecommerce.config.TestContainersConfiguration
 import io.kotest.matchers.shouldBe

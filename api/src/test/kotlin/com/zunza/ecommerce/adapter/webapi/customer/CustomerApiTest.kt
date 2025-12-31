@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.RegisterAddressRequest
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.UpdateAddressRequest
 import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.LoginUseCase
 import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
-import com.zunza.ecommerce.application.auth.provided.LoginUseCase
-import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
+import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
 import com.zunza.ecommerce.application.customer.provided.RegisterAddressUseCase
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
 import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow

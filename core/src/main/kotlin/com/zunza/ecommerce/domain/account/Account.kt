@@ -1,6 +1,7 @@
 package com.zunza.ecommerce.domain.account
 
 import com.zunza.ecommerce.domain.AbstractEntity
+import com.zunza.ecommerce.domain.shared.Email
 import jakarta.persistence.Entity
 import java.time.LocalDateTime
 

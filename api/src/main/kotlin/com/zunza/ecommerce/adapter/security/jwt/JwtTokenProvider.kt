@@ -1,10 +1,10 @@
 package com.zunza.ecommerce.adapter.security.jwt
 
-import com.zunza.ecommerce.application.auth.exception.ExpiredTokenException
-import com.zunza.ecommerce.application.auth.exception.InvalidSignatureTokenException
-import com.zunza.ecommerce.application.auth.exception.MalformedTokenException
-import com.zunza.ecommerce.application.auth.exception.UnsupportedTokenException
-import com.zunza.ecommerce.application.auth.required.TokenProvider
+import com.zunza.ecommerce.adapter.security.jwt.exception.ExpiredTokenException
+import com.zunza.ecommerce.adapter.security.jwt.exception.InvalidSignatureTokenException
+import com.zunza.ecommerce.adapter.security.jwt.exception.MalformedTokenException
+import com.zunza.ecommerce.adapter.security.jwt.exception.UnsupportedTokenException
+import com.zunza.ecommerce.application.account.required.TokenProvider
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException

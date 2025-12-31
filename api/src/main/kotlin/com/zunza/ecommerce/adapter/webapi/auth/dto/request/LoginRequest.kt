@@ -1,6 +1,6 @@
 package com.zunza.ecommerce.adapter.webapi.auth.dto.request
 
-import com.zunza.ecommerce.application.auth.service.dto.command.LoginCommand
+import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
 import jakarta.validation.constraints.NotBlank
 
 data class LoginRequest(

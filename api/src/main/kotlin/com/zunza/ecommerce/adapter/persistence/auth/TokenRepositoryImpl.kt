@@ -1,7 +1,7 @@
 package com.zunza.ecommerce.adapter.persistence.auth
 
 import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
-import com.zunza.ecommerce.application.auth.required.TokenRepository
+import com.zunza.ecommerce.application.account.required.TokenRepository
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Repository
 import java.util.concurrent.TimeUnit

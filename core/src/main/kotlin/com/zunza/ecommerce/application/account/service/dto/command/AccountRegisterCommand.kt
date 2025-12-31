@@ -1,6 +1,5 @@
 package com.zunza.ecommerce.application.account.service.dto.command
 
-
 data class AccountRegisterCommand(
     val email: String,
     val password: String,

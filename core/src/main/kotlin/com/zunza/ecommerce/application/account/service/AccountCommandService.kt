@@ -13,8 +13,8 @@ import com.zunza.ecommerce.application.customer.provided.RegisterCustomerUseCase
 import com.zunza.ecommerce.application.customer.service.dto.command.CustomerRegisterCommand
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.DuplicateEmailException
-import com.zunza.ecommerce.domain.account.Email
 import com.zunza.ecommerce.domain.account.PasswordEncoder
+import com.zunza.ecommerce.domain.shared.Email
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

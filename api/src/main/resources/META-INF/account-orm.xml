@@ -37,7 +37,7 @@
         </attributes>
     </entity>
 
-    <embeddable class="com.zunza.ecommerce.domain.account.Email">
+    <embeddable class="com.zunza.ecommerce.domain.shared.Email">
         <attributes>
             <basic name="address">
                 <column name="email_address" unique="true" nullable="false" length="200"/>

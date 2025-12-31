@@ -1,6 +1,6 @@
 package com.zunza.ecommerce.adapter
 
-import com.zunza.ecommerce.application.auth.exception.CustomTokenException
+import com.zunza.ecommerce.adapter.security.jwt.exception.CustomTokenException
 import com.zunza.ecommerce.domain.account.AccountNotFoundException
 import com.zunza.ecommerce.domain.account.DuplicateEmailException
 import org.springframework.http.*

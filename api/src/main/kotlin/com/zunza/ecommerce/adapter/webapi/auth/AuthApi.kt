@@ -5,10 +5,10 @@ import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.RefreshResponse
-import com.zunza.ecommerce.application.auth.provided.LoginUseCase
-import com.zunza.ecommerce.application.auth.provided.LogoutUseCase
-import com.zunza.ecommerce.application.auth.provided.RefreshUseCase
-import com.zunza.ecommerce.application.auth.service.dto.command.LogoutCommand
+import com.zunza.ecommerce.application.account.provided.LoginUseCase
+import com.zunza.ecommerce.application.account.provided.LogoutUseCase
+import com.zunza.ecommerce.application.account.provided.RefreshUseCase
+import com.zunza.ecommerce.application.account.service.dto.command.LogoutCommand
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie

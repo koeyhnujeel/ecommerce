@@ -4,7 +4,7 @@ import com.zunza.ecommerce.application.account.provided.GetCustomerAccountUseCas
 import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.AccountNotFoundException
-import com.zunza.ecommerce.domain.account.Email
+import com.zunza.ecommerce.domain.shared.Email
 import org.springframework.stereotype.Service
 
 @Service

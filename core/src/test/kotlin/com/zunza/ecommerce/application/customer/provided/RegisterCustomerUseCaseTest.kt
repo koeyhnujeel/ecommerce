@@ -5,11 +5,7 @@ import com.zunza.ecommerce.application.customer.service.CustomerCommandService
 import com.zunza.ecommerce.application.customer.service.dto.command.CustomerRegisterCommand
 import com.zunza.ecommerce.domain.customer.Customer
 import io.kotest.assertions.throwables.shouldThrow
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

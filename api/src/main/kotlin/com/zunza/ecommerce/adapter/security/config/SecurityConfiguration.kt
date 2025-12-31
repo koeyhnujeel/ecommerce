@@ -2,8 +2,8 @@ package com.zunza.ecommerce.adapter.security.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.adapter.security.jwt.JwtAuthenticationFilter
-import com.zunza.ecommerce.application.auth.required.TokenProvider
-import com.zunza.ecommerce.application.auth.required.TokenRepository
+import com.zunza.ecommerce.application.account.required.TokenProvider
+import com.zunza.ecommerce.application.account.required.TokenRepository
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

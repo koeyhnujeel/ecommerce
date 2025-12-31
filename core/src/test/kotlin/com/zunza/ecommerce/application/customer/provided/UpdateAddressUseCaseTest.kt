@@ -2,7 +2,7 @@ package com.zunza.ecommerce.application.customer.provided
 
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
 import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
-import com.zunza.ecommerce.application.customer.service.CustomerAddressCommandService
+import com.zunza.ecommerce.application.customer.service.CustomerCommandService
 import com.zunza.ecommerce.application.fixture.AddressCommandFixture
 import com.zunza.ecommerce.domain.customer.Customer
 import com.zunza.ecommerce.domain.customer.CustomerNotFoundException
@@ -23,7 +23,7 @@ class UpdateAddressUseCaseTest {
     @BeforeEach
     fun setUp() {
         customerRepository = mockk()
-        updateAddressUseCase = CustomerAddressCommandService(customerRepository)
+        updateAddressUseCase = CustomerCommandService(customerRepository)
     }
 
     @AfterEach

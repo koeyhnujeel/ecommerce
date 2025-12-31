@@ -2,22 +2,16 @@ package com.zunza.ecommerce.application.account.provided
 
 import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.EmailSender
-import com.zunza.ecommerce.application.account.required.findByIdOrThrow
 import com.zunza.ecommerce.application.account.service.AccountCommandService
 import com.zunza.ecommerce.application.customer.provided.RegisterCustomerUseCase
 import com.zunza.ecommerce.application.fixture.AccountCommandFixture
 import com.zunza.ecommerce.domain.account.Account
-import com.zunza.ecommerce.domain.account.AccountNotFoundException
 import com.zunza.ecommerce.domain.account.DuplicateEmailException
-import com.zunza.ecommerce.domain.account.Email
 import com.zunza.ecommerce.domain.account.PasswordEncoder
+import com.zunza.ecommerce.domain.shared.Email
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
