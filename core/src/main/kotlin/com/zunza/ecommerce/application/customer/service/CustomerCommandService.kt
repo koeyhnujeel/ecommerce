@@ -27,7 +27,7 @@ class CustomerCommandService(
     override fun registerAddress(command: RegisterAddressCommand): Long {
         val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
 
-        customer.registerAddress(
+        customer.registerShippingAddress(
             alias = command.alias,
             roadAddress = command.roadAddress,
             detailAddress = command.detailAddress,
@@ -42,7 +42,7 @@ class CustomerCommandService(
     override fun updateAddress(command: UpdateAddressCommand) {
         val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
 
-        customer.updateAddress(
+        customer.updateShippingAddress(
             addressId = command.addressId,
             alias = command.alias,
             roadAddress = command.roadAddress,
@@ -58,7 +58,7 @@ class CustomerCommandService(
     override fun deleteAddress(command: DeleteAddressCommand) {
         val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
 
-        customer.deleteAddress(command.addressId)
+        customer.deleteShippingAddress(command.addressId)
 
         customerRepository.save(customer)
     }
@@ -66,7 +66,7 @@ class CustomerCommandService(
     override fun updateDefaultAddress(command: UpdateDefaultAddressCommand) {
         val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
 
-        customer.updateDefaultAddress(command.addressId)
+        customer.updateShippingDefaultAddress(command.addressId)
 
         customerRepository.save(customer)
     }

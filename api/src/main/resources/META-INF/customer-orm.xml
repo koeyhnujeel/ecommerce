@@ -20,7 +20,7 @@
                 <column name="phone" nullable="false" length="250"/>
             </basic>
 
-            <one-to-many name="addresses" orphan-removal="true">
+            <one-to-many name="shippingAddresses" orphan-removal="true">
                 <join-column name="customer_id" nullable="false"/>
                 <cascade>
                     <cascade-all/>
@@ -29,20 +29,11 @@
         </attributes>
     </entity>
 
-    <entity class="com.zunza.ecommerce.domain.customer.Address">
+    <entity class="com.zunza.ecommerce.domain.customer.ShippingAddress">
         <table name="address"/>
         <attributes>
             <basic name="alias">
                 <column name="alias" nullable="false" length="50"/>
-            </basic>
-            <basic name="roadAddress">
-                <column name="road_address" nullable="false" length="200"/>
-            </basic>
-            <basic name="detailAddress">
-                <column name="detail_address" nullable="false" length="200"/>
-            </basic>
-            <basic name="zipcode">
-                <column name="zipcode" nullable="false" length="10"/>
             </basic>
             <basic name="receiverName">
                 <column name="receiver_name" nullable="false" length="50"/>
@@ -50,6 +41,7 @@
             <basic name="isDefault">
                 <column name="is_default" nullable="false"/>
             </basic>
+            <embedded name="address"/>
         </attributes>
     </entity>
 

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class UpdateAddressUseCaseTest {
+class UpdateShippingAddressUseCaseTest {
     lateinit var customerRepository: CustomerRepository
     lateinit var updateAddressUseCase: UpdateAddressUseCase
 
@@ -48,7 +48,7 @@ class UpdateAddressUseCaseTest {
         verify(exactly = 1) {
             customerRepository.findWithAddressesOrThrow(accountId)
             customerRepository.save(customer)
-            customer.updateAddress(
+            customer.updateShippingAddress(
                 addressId = command.addressId,
                 command.alias,
                 command.roadAddress,
@@ -77,7 +77,7 @@ class UpdateAddressUseCaseTest {
 
         verify(exactly = 0) {
             customerRepository.save(customer)
-            customer.updateAddress(
+            customer.updateShippingAddress(
                 addressId = command.addressId,
                 command.alias,
                 command.roadAddress,

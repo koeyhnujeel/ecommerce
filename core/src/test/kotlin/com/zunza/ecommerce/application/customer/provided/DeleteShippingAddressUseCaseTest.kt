@@ -16,7 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class DeleteAddressUseCaseTest {
+class DeleteShippingAddressUseCaseTest {
     lateinit var customerRepository: CustomerRepository
     lateinit var deleteAddressUseCase: DeleteAddressUseCase
 
@@ -49,7 +49,7 @@ class DeleteAddressUseCaseTest {
         verify(exactly = 1) {
             customerRepository.findWithAddressesOrThrow(accountId)
             customerRepository.save(customer)
-            customer.deleteAddress(command.addressId)
+            customer.deleteShippingAddress(command.addressId)
         }
     }
 
@@ -71,7 +71,7 @@ class DeleteAddressUseCaseTest {
 
         verify(exactly = 0) {
             customerRepository.save(customer)
-            customer.deleteAddress(command.addressId)
+            customer.deleteShippingAddress(command.addressId)
         }
     }
 }

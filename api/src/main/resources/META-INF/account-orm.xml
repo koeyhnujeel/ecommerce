@@ -37,12 +37,12 @@
         </attributes>
     </entity>
 
-    <embeddable class="com.zunza.ecommerce.domain.shared.Email">
-        <attributes>
-            <basic name="address">
-                <column name="email_address" unique="true" nullable="false" length="200"/>
-            </basic>
-        </attributes>
-    </embeddable>
+<!--    <embeddable class="com.zunza.ecommerce.domain.shared.Email">-->
+<!--        <attributes>-->
+<!--            <basic name="address">-->
+<!--                <column name="email_address" unique="true" nullable="false" length="200"/>-->
+<!--            </basic>-->
+<!--        </attributes>-->
+<!--    </embeddable>-->
 
 </entity-mappings>

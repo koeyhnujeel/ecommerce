@@ -8,7 +8,7 @@ class Customer private constructor(
     val accountId: Long,
     val name: String,
     val phone: String,
-    val addresses: MutableList<Address> = mutableListOf()
+    val shippingAddresses: MutableList<ShippingAddress> = mutableListOf()
 ) : AbstractEntity() {
     companion object {
         fun register(accountId: Long, name: String, phone: String, ): Customer {
@@ -24,7 +24,7 @@ class Customer private constructor(
         }
     }
 
-    fun registerAddress(
+    fun registerShippingAddress(
         alias: String,
         roadAddress: String,
         detailAddress: String,
@@ -32,15 +32,15 @@ class Customer private constructor(
         zipcode: String,
         isDefault: Boolean
     ) {
-        require(this.addresses.size < 10) { "주소는 최대 10개까지 등록 가능합니다." }
+        require(this.shippingAddresses.size < 10) { "주소는 최대 10개까지 등록 가능합니다." }
 
-        val shouldBeDefault = addresses.isEmpty() || isDefault
+        val shouldBeDefault = shippingAddresses.isEmpty() || isDefault
 
         if (shouldBeDefault) {
-            clearDefaultAddress()
+            clearDefaultShippingAddress()
         }
 
-        val address = Address.create(
+        val shippingAddress = ShippingAddress.create(
             alias = alias,
             roadAddress = roadAddress,
             detailAddress = detailAddress,
@@ -49,10 +49,10 @@ class Customer private constructor(
             isDefault = shouldBeDefault
         )
 
-        addresses.add(address)
+        shippingAddresses.add(shippingAddress)
     }
 
-    fun updateAddress(
+    fun updateShippingAddress(
         addressId: Long,
         alias: String,
         roadAddress: String,
@@ -63,7 +63,7 @@ class Customer private constructor(
     ) {
         val address = findAddressById(addressId)
 
-        if (isDefault) clearDefaultAddress()
+        if (isDefault) clearDefaultShippingAddress()
 
         address.update(
             alias = alias,
@@ -75,23 +75,23 @@ class Customer private constructor(
         )
     }
 
-    fun deleteAddress(addressId: Long) {
-        this.addresses.removeIf { it.id == addressId }
+    fun deleteShippingAddress(addressId: Long) {
+        this.shippingAddresses.removeIf { it.id == addressId }
     }
 
-    fun updateDefaultAddress(addressId: Long) {
-        clearDefaultAddress()
+    fun updateShippingDefaultAddress(addressId: Long) {
+        clearDefaultShippingAddress()
 
         findAddressById(addressId).markAsDefault()
     }
 
-    private fun clearDefaultAddress() {
-        this.addresses.find { it.isDefault }
+    private fun clearDefaultShippingAddress() {
+        this.shippingAddresses.find { it.isDefault }
             ?.unmarkAsDefault()
     }
 
-    private fun findAddressById(addressId: Long): Address {
-        return this.addresses.find { it.id == addressId }
-            ?: throw AddressNotFoundException()
+    private fun findAddressById(addressId: Long): ShippingAddress {
+        return this.shippingAddresses.find { it.id == addressId }
+            ?: throw ShippingAddressNotFoundException()
     }
 }

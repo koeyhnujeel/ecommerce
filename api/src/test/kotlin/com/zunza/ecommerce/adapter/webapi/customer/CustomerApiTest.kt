@@ -33,7 +33,7 @@ class CustomerApiTest(
     val objectMapper: ObjectMapper,
     val loginUseCase: LoginUseCase,
     val customerRepository: CustomerRepository,
-    val registerAddressUseCase: RegisterAddressUseCase,
+    val registerShippingAddressUseCase: RegisterAddressUseCase,
     val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
     val activateCustomerAccountUseCase: ActivateCustomerAccountUseCase,
 ) {
@@ -63,7 +63,7 @@ class CustomerApiTest(
     }
 
     @Test
-    fun registerAddress() {
+    fun registerShippingAddress() {
         val request = RegisterAddressRequest(
             alias = "집",
             roadAddress = "서울특별시 관악구 관악로 1",
@@ -89,24 +89,24 @@ class CustomerApiTest(
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
 
-        customer.addresses shouldHaveSize 1
-        customer.addresses[0].alias shouldBe request.alias
-        customer.addresses[0].roadAddress shouldBe request.roadAddress
-        customer.addresses[0].detailAddress shouldBe request.detailAddress
-        customer.addresses[0].receiverName shouldBe request.receiverName
-        customer.addresses[0].zipcode shouldBe request.zipcode
-        customer.addresses[0].isDefault shouldBe request.isDefault
+        customer.shippingAddresses shouldHaveSize 1
+        customer.shippingAddresses[0].alias shouldBe request.alias
+        customer.shippingAddresses[0].roadAddress shouldBe request.roadAddress
+        customer.shippingAddresses[0].detailAddress shouldBe request.detailAddress
+        customer.shippingAddresses[0].receiverName shouldBe request.receiverName
+        customer.shippingAddresses[0].zipcode shouldBe request.zipcode
+        customer.shippingAddresses[0].isDefault shouldBe request.isDefault
     }
 
     @Test
-    fun updateAddress() {
-        val command = createRegisterAddressCommand(accountId)
+    fun updateShippingAddress() {
+        val command = createRegisterShippingAddressCommand(accountId)
 
-        registerAddressUseCase.registerAddress(command)
+        getRegisterShippingAddressUseCase.registerAddress(command)
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
 
-        val addressId = customer.addresses[0].id
+        val addressId = customer.shippingAddresses[0].id
 
         val request = UpdateAddressRequest(
             alias = "수정된 집",
@@ -130,22 +130,22 @@ class CustomerApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        customer.addresses shouldHaveSize 1
-        customer.addresses[0].alias shouldBe request.alias
-        customer.addresses[0].roadAddress shouldBe request.roadAddress
-        customer.addresses[0].detailAddress shouldBe request.detailAddress
-        customer.addresses[0].receiverName shouldBe request.receiverName
-        customer.addresses[0].zipcode shouldBe request.zipcode
-        customer.addresses[0].isDefault shouldBe request.isDefault
+        customer.shippingAddresses shouldHaveSize 1
+        customer.shippingAddresses[0].alias shouldBe request.alias
+        customer.shippingAddresses[0].roadAddress shouldBe request.roadAddress
+        customer.shippingAddresses[0].detailAddress shouldBe request.detailAddress
+        customer.shippingAddresses[0].receiverName shouldBe request.receiverName
+        customer.shippingAddresses[0].zipcode shouldBe request.zipcode
+        customer.shippingAddresses[0].isDefault shouldBe request.isDefault
     }
 
     @Test
-    fun updateDefaultAddress() {
-        val command1 = createRegisterAddressCommand(accountId)
+    fun updateShippingDefaultAddress() {
+        val command1 = createRegisterShippingAddressCommand(accountId)
 
-        registerAddressUseCase.registerAddress(command1)
+        getRegisterShippingAddressUseCase.registerAddress(command1)
 
-        val command2 = createRegisterAddressCommand(
+        val command2 = createRegisterShippingAddressCommand(
             accountId,
             "회사",
             "서울특별시 관악구 관악로 123",
@@ -155,14 +155,14 @@ class CustomerApiTest(
             false
         )
 
-        registerAddressUseCase.registerAddress(command2)
+        getRegisterShippingAddressUseCase.registerAddress(command2)
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
 
-        customer.addresses[0].isDefault shouldBe true
-        customer.addresses[1].isDefault shouldBe false
+        customer.shippingAddresses[0].isDefault shouldBe true
+        customer.shippingAddresses[1].isDefault shouldBe false
 
-        val addressId = customer.addresses[1].id
+        val addressId = customer.shippingAddresses[1].id
 
         mockMvc.patch("/api/customers/me/addresses/${addressId}") {
             contentType = MediaType.APPLICATION_JSON
@@ -176,20 +176,20 @@ class CustomerApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        customer.addresses[0].isDefault shouldBe false
-        customer.addresses[1].isDefault shouldBe true
+        customer.shippingAddresses[0].isDefault shouldBe false
+        customer.shippingAddresses[1].isDefault shouldBe true
     }
 
     @Test
-    fun deleteAddress() {
-        val command = createRegisterAddressCommand(accountId)
+    fun deleteShippingAddress() {
+        val command = createRegisterShippingAddressCommand(accountId)
 
-        registerAddressUseCase.registerAddress(command)
+        getRegisterShippingAddressUseCase.registerAddress(command)
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
-        val addressId = customer.addresses[0].id
+        val addressId = customer.shippingAddresses[0].id
 
-        customer.addresses shouldHaveSize 1
+        customer.shippingAddresses shouldHaveSize 1
 
         mockMvc.delete("/api/customers/me/addresses/${addressId}") {
             contentType = MediaType.APPLICATION_JSON
@@ -203,10 +203,10 @@ class CustomerApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        customer.addresses shouldHaveSize 0
+        customer.shippingAddresses shouldHaveSize 0
     }
 
-    private fun createRegisterAddressCommand(
+    private fun createRegisterShippingAddressCommand(
         accountId: Long,
         alias: String = "집",
         roadAddress: String = "서울특별시 관악구 관악로 1",
