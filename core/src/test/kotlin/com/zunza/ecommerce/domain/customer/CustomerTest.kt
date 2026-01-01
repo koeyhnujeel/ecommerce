@@ -46,8 +46,8 @@ class CustomerTest {
     }
 
     @Test
-    fun registerAddress() {
-        customer.registerAddress(
+    fun registerShippingAddress() {
+        customer.registerShippingAddress(
             alias = "집",
             roadAddress = "서울특별시 관악구 관악로 1",
             detailAddress = "",
@@ -56,18 +56,18 @@ class CustomerTest {
             isDefault = true
         )
 
-        val address = customer.addresses[0]
+        val shippingAddress = customer.shippingAddresses[0]
 
-        address.alias shouldBe "집"
-        address.roadAddress shouldBe "서울특별시 관악구 관악로 1"
-        address.detailAddress shouldBe ""
-        address.receiverName shouldBe "홍길동"
-        address.zipcode shouldBe "11111"
-        address.isDefault shouldBe true
+        shippingAddress.alias shouldBe "집"
+        shippingAddress.receiverName shouldBe "홍길동"
+        shippingAddress.address.roadAddress shouldBe "서울특별시 관악구 관악로 1"
+        shippingAddress.address.detailAddress shouldBe ""
+        shippingAddress.address.zipcode shouldBe "11111"
+        shippingAddress.isDefault shouldBe true
     }
 
     @Test
-    fun registerAddressFailOver10() {
+    fun registerShippingAddressFailOver10() {
         repeat(10) {
             registerAddress(customer)
         }
@@ -97,8 +97,8 @@ class CustomerTest {
     }
 
     @Test
-    fun updateAddress() {
-        val address1 = Address.create(
+    fun updateShippingAddress() {
+        val shippingAddress1 = ShippingAddress.create(
             alias = "집",
             roadAddress = "서울특별시 관악구 관악로 1",
             detailAddress = "",
@@ -107,7 +107,7 @@ class CustomerTest {
             isDefault = true
         ).setIdForTest(1L)
 
-        val address2 = Address.create(
+        val shippingAddress2 = ShippingAddress.create(
             alias = "학교",
             roadAddress = "서울특별시 관악구 관악로 123",
             detailAddress = "",
@@ -116,10 +116,10 @@ class CustomerTest {
             isDefault = false
         ).setIdForTest(2L)
 
-        customer.addresses.add(address1)
-        customer.addresses.add(address2)
+        customer.shippingAddresses.add(shippingAddress1)
+        customer.shippingAddresses.add(shippingAddress2)
 
-        customer.updateAddress(
+        customer.updateShippingAddress(
             2L,
             alias = "직장",
             roadAddress = "서울특별시 관악구 관악로 4",
@@ -129,20 +129,20 @@ class CustomerTest {
             isDefault = false
         )
 
-        val found = customer.addresses[1]
+        val found = customer.shippingAddresses[1]
 
         found.alias shouldBe "직장"
-        found.roadAddress shouldBe "서울특별시 관악구 관악로 4"
-        found.detailAddress shouldBe ""
         found.receiverName shouldBe "이순신"
-        found.zipcode shouldBe "22222"
+        found.address.roadAddress shouldBe "서울특별시 관악구 관악로 4"
+        found.address.detailAddress shouldBe ""
+        found.address.zipcode shouldBe "22222"
         found.isDefault shouldBe false
     }
 
     @Test
-    fun updateAddressFailAddressNotFound() {
-        shouldThrow<AddressNotFoundException> {
-            customer.updateAddress(
+    fun updateAddressFailShippingAddressNotFound() {
+        shouldThrow<ShippingAddressNotFoundException> {
+            customer.updateShippingAddress(
                 1L,
                 alias = "직장",
                 roadAddress = "서울특별시 관악구 관악로 4",
@@ -155,8 +155,8 @@ class CustomerTest {
     }
 
     @Test
-    fun deleteAddress() {
-        val address1 = Address.create(
+    fun deleteShippingAddress() {
+        val shippingAddress1 = ShippingAddress.create(
             alias = "집",
             roadAddress = "서울특별시 관악구 관악로 1",
             detailAddress = "",
@@ -165,7 +165,7 @@ class CustomerTest {
             isDefault = true
         ).setIdForTest(1L)
 
-        val address2 = Address.create(
+        val shippingAddress2 = ShippingAddress.create(
             alias = "학교",
             roadAddress = "서울특별시 관악구 관악로 123",
             detailAddress = "",
@@ -174,19 +174,19 @@ class CustomerTest {
             isDefault = false
         ).setIdForTest(2L)
 
-        customer.addresses.add(address1)
-        customer.addresses.add(address2)
+        customer.shippingAddresses.add(shippingAddress1)
+        customer.shippingAddresses.add(shippingAddress2)
 
-        customer.addresses.size shouldBe 2
+        customer.shippingAddresses.size shouldBe 2
 
-        customer.deleteAddress(2L)
+        customer.deleteShippingAddress(2L)
 
-        customer.addresses.size shouldBe 1
+        customer.shippingAddresses.size shouldBe 1
     }
 
     @Test
-    fun updateDefaultAddress() {
-        val address1 = Address.create(
+    fun updateShippingDefaultAddress() {
+        val shippingAddress1 = ShippingAddress.create(
             alias = "집",
             roadAddress = "서울특별시 관악구 관악로 1",
             detailAddress = "",
@@ -195,19 +195,19 @@ class CustomerTest {
             isDefault = false
         ).setIdForTest(1L)
 
-        customer.addresses.add(address1)
+        customer.shippingAddresses.add(shippingAddress1)
 
-        customer.addresses[0].isDefault shouldBe false
+        customer.shippingAddresses[0].isDefault shouldBe false
 
-        customer.updateDefaultAddress(1L)
+        customer.updateShippingDefaultAddress(1L)
 
-        customer.addresses[0].isDefault shouldBe true
+        customer.shippingAddresses[0].isDefault shouldBe true
     }
 
     @Test
-    fun updateDefaultAddressFailAddressNotFound() {
-        shouldThrow<AddressNotFoundException> {
-            customer.updateDefaultAddress(1L)
+    fun updateShippingDefaultAddressFailAddressNotFound() {
+        shouldThrow<ShippingAddressNotFoundException> {
+            customer.updateShippingDefaultAddress(1L)
         }.message shouldBe "등록되지 않은 주소입니다."
     }
 }
@@ -221,7 +221,7 @@ private fun registerAddress(
     zipcode: String = "11111",
     isDefault: Boolean = true
 ) {
-    customer.registerAddress(
+    customer.registerShippingAddress(
         alias = alias,
         roadAddress = roadAddress,
         detailAddress = detailAddress,

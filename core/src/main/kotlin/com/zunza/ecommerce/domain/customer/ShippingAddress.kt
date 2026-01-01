@@ -1,15 +1,14 @@
 package com.zunza.ecommerce.domain.customer
 
 import com.zunza.ecommerce.domain.AbstractEntity
+import com.zunza.ecommerce.domain.shared.Address
 import jakarta.persistence.Entity
 
 @Entity
-class Address(
+class ShippingAddress(
     var alias: String,
-    var roadAddress: String,
-    var detailAddress: String,
     var receiverName: String,
-    var zipcode: String,
+    var address: Address,
     var isDefault: Boolean
 ) : AbstractEntity() {
     companion object {
@@ -20,18 +19,14 @@ class Address(
             receiverName: String,
             zipcode: String,
             isDefault: Boolean
-        ): Address {
+        ): ShippingAddress {
             require(alias.isNotBlank()) { "배송지 별칭은 필수입니다." }
-            require(roadAddress.isNotBlank()) { "도로명 주소는 필수입니다." }
             require(receiverName.isNotBlank()) { "수령인 이름은 필수입니다." }
-            require(zipcode.matches(Regex("\\d{5}"))) { "우편번호 형식이 올바르지 않습니다." }
 
-            return Address(
+            return ShippingAddress(
                 alias = alias,
-                roadAddress = roadAddress,
-                detailAddress = detailAddress,
                 receiverName = receiverName,
-                zipcode = zipcode,
+                address = Address(roadAddress, detailAddress, zipcode),
                 isDefault = isDefault
             )
         }
@@ -46,10 +41,8 @@ class Address(
         isDefault: Boolean
     ) {
         this.alias = alias
-        this.roadAddress = roadAddress
-        this.detailAddress = detailAddress
         this.receiverName = receiverName
-        this.zipcode = zipcode
+        this.address = Address(roadAddress, detailAddress, zipcode)
         this.isDefault = isDefault
     }
 

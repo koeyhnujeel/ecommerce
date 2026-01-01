@@ -16,4 +16,26 @@
         </attributes>
     </mapped-superclass>
 
+    <embeddable class="com.zunza.ecommerce.domain.shared.Email">
+        <attributes>
+            <basic name="address">
+                <column name="email_address" unique="true" nullable="false" length="200"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.zunza.ecommerce.domain.shared.Address">
+        <attributes>
+            <basic name="roadAddress">
+                <column name="road_address" nullable="false" length="200"/>
+            </basic>
+            <basic name="detailAddress">
+                <column name="detail_address" nullable="true" length="200"/>
+            </basic>
+            <basic name="zipcode">
+                <column name="zipcode" nullable="false" length="10"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
 </entity-mappings>
