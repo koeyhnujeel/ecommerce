@@ -38,4 +38,18 @@
         </attributes>
     </embeddable>
 
+    <embeddable class="com.zunza.ecommerce.domain.shared.BankAccount">
+        <attributes>
+            <basic name="bankName">
+                <column name="bank_name" nullable="false" length="200"/>
+            </basic>
+            <basic name="accountNumber">
+                <column name="account_number" nullable="false" length="200"/>
+            </basic>
+            <basic name="accountHolder">
+                <column name="account_holder" nullable="false" length="200"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
 </entity-mappings>

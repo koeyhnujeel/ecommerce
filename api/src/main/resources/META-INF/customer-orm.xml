@@ -30,7 +30,7 @@
     </entity>
 
     <entity class="com.zunza.ecommerce.domain.customer.ShippingAddress">
-        <table name="address"/>
+        <table name="shipping_address"/>
         <attributes>
             <basic name="alias">
                 <column name="alias" nullable="false" length="50"/>

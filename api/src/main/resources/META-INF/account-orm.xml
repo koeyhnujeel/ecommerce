@@ -17,10 +17,10 @@
                 <column name="status" nullable="false" length="50"/>
                 <enumerated>STRING</enumerated>
             </basic>
-            <basic name="role">
-                <column name="role" nullable="false" length="50"/>
-                <enumerated>STRING</enumerated>
-            </basic>
+<!--            <basic name="role">-->
+<!--                <column name="role" nullable="false" length="50"/>-->
+<!--                <enumerated>STRING</enumerated>-->
+<!--            </basic>-->
             <basic name="registeredAt">
                 <column name="registered_at" nullable="false"/>
             </basic>
@@ -34,15 +34,15 @@
                 <column name="deactivated_at" nullable="true"/>
             </basic>
             <embedded name="email"/>
+
+            <element-collection name="roles" fetch="EAGER">
+                <collection-table name="account_role">
+                    <join-column name="account_id" nullable="false"/>
+                </collection-table>
+                <column name="role" nullable="false" length="50"/>
+                <enumerated>STRING</enumerated>
+            </element-collection>
         </attributes>
     </entity>
-
-<!--    <embeddable class="com.zunza.ecommerce.domain.shared.Email">-->
-<!--        <attributes>-->
-<!--            <basic name="address">-->
-<!--                <column name="email_address" unique="true" nullable="false" length="200"/>-->
-<!--            </basic>-->
-<!--        </attributes>-->
-<!--    </embeddable>-->
 
 </entity-mappings>
