@@ -5,6 +5,7 @@ import com.zunza.ecommerce.application.account.required.TokenRepository
 import com.zunza.ecommerce.application.account.service.AccountAuthenticationService
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.PasswordEncoder
+import com.zunza.ecommerce.domain.account.UserRole
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -38,13 +39,13 @@ class RefreshUseCaseTest {
     fun refresh() {
         val refreshToken = "refreshToken"
         val accountId = 1L
-        val accountRole = "ROLE_CUSTOMER"
+        val accountRoles = mutableSetOf(UserRole.ROLE_CUSTOMER)
         val newAccessToken = "newAccessToken"
         val newRefreshToken = "newRefreshToken"
 
         val account = mockk<Account> {
             every { id } returns accountId
-            every { role.toString() } returns accountRole
+            every { roles } returns accountRoles
         }
 
         every { tokenProvider.validateToken(any()) } returns Unit
@@ -60,7 +61,7 @@ class RefreshUseCaseTest {
             tokenProvider.validateToken(refreshToken)
             tokenProvider.getAccountId(refreshToken)
             getCustomerAccountUseCase.findByIdOrThrow(accountId)
-            tokenProvider.generateAccessToken(accountId, accountRole)
+            tokenProvider.generateAccessToken(accountId, accountRoles.toList())
             tokenProvider.generateRefreshToken(accountId)
             tokenRepository.save(accountId, newRefreshToken)
         }

@@ -7,9 +7,13 @@ import com.zunza.ecommerce.application.fixture.LoginCommandFixture
 import com.zunza.ecommerce.domain.account.Account
 import com.zunza.ecommerce.domain.account.InvalidCredentialsException
 import com.zunza.ecommerce.domain.account.PasswordEncoder
+import com.zunza.ecommerce.domain.account.UserRole
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,21 +44,21 @@ class LoginUseCaseTest {
     @Test
     fun login() {
         val accountId = 1L
-        val accountRole = "ROLE_CUSTOMER"
+        val accountRoles = mutableSetOf(UserRole.ROLE_CUSTOMER)
 
         val accessToken = "accessToken"
         val refreshToken = "refreshToken"
 
         val account = mockk<Account>() {
             every { id } returns accountId
-            every { role.toString() } returns accountRole
+            every { roles } returns accountRoles
         }
 
         every { getCustomerAccountUseCase.findByEmail(any()) } returns account
-        every { account.login(any(), any()) } just Runs
+        every { account.login(any(), any()) } returns Unit
         every { tokenProvider.generateAccessToken(any(), any()) } returns accessToken
         every { tokenProvider.generateRefreshToken(any()) } returns refreshToken
-        every { tokenRepository.save(any(), any()) } just Runs
+        every { tokenRepository.save(any(), any()) } returns Unit
 
         val result = loginUseCase.login(command)
 
@@ -65,7 +69,7 @@ class LoginUseCaseTest {
         verify(exactly = 1) {
             getCustomerAccountUseCase.findByEmail(command.email)
             account.login(command.password, passwordEncoder)
-            tokenProvider.generateAccessToken(accountId, accountRole)
+            tokenProvider.generateAccessToken(accountId, accountRoles.toList())
             tokenProvider.generateRefreshToken(accountId)
             tokenRepository.save(accountId, refreshToken)
         }
