@@ -22,7 +22,7 @@ class AccountTest {
         account.email.address shouldBe "zunza@email.com"
         account.passwordHash shouldBe passwordEncoder.encode("password1!")
         account.status shouldBe AccountStatus.PENDING
-        account.role shouldBe UserRole.ROLE_CUSTOMER
+        account.roles.first() shouldBe UserRole.ROLE_CUSTOMER
         account.registeredAt shouldNotBe null
         account.activatedAt shouldBe null
         account.lastLoginAt shouldBe null
@@ -143,5 +143,21 @@ class AccountTest {
         shouldThrow<InvalidCredentialsException> { account.login("invalid1!", passwordEncoder) }
 
         account.lastLoginAt shouldBe null
+    }
+
+    @Test
+    fun grantPartnerRole() {
+        account.activate()
+
+        account.grantPartnerRole()
+
+        account.roles shouldBe listOf(UserRole.ROLE_CUSTOMER, UserRole.ROLE_PARTNER)
+    }
+
+    @Test
+    fun grantPartnerRoleFail() {
+        shouldThrow<IllegalStateException> {
+            account.grantPartnerRole()
+        }.message shouldBe "ACTIVE 상태가 아닙니다."
     }
 }
