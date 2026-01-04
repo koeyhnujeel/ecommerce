@@ -2,6 +2,7 @@ package com.zunza.ecommerce.adapter.security.jwt
 
 import com.zunza.ecommerce.config.TestConfiguration
 import com.zunza.ecommerce.config.TestContainersConfiguration
+import com.zunza.ecommerce.domain.account.UserRole
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
@@ -16,12 +17,12 @@ class JwtTokenProviderTest(
 
     @BeforeEach
     fun setUp() {
-        accessToken = jwtTokenProvider.generateAccessToken(1L, "ROLE_CUSTOMER")
+        accessToken = jwtTokenProvider.generateAccessToken(1L, listOf(UserRole.ROLE_CUSTOMER))
     }
 
     @Test
     fun generateAccessToken() {
-        val accessToken = jwtTokenProvider.generateAccessToken(1L, "ROLE_CUSTOMER")
+        val accessToken = jwtTokenProvider.generateAccessToken(1L, listOf(UserRole.ROLE_CUSTOMER))
 
         accessToken shouldNotBe null
     }
@@ -47,9 +48,9 @@ class JwtTokenProviderTest(
 
     @Test
     fun getAccountRole() {
-        val accountRole = jwtTokenProvider.getAccountRole(accessToken)
+        val accountRoles = jwtTokenProvider.getAccountRoles(accessToken)
 
-        accountRole shouldBe "ROLE_CUSTOMER"
+        accountRoles[0] shouldBe "ROLE_CUSTOMER"
     }
 
 }

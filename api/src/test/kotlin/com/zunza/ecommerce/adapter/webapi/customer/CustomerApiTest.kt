@@ -73,7 +73,7 @@ class CustomerApiTest(
             isDefault = true
         )
 
-        mockMvc.post("/api/customers/me/addresses") {
+        mockMvc.post("/api/customers/me/shipping-addresses") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(request)
             cookie(
@@ -91,18 +91,18 @@ class CustomerApiTest(
 
         customer.shippingAddresses shouldHaveSize 1
         customer.shippingAddresses[0].alias shouldBe request.alias
-        customer.shippingAddresses[0].roadAddress shouldBe request.roadAddress
-        customer.shippingAddresses[0].detailAddress shouldBe request.detailAddress
         customer.shippingAddresses[0].receiverName shouldBe request.receiverName
-        customer.shippingAddresses[0].zipcode shouldBe request.zipcode
         customer.shippingAddresses[0].isDefault shouldBe request.isDefault
+        customer.shippingAddresses[0].address.roadAddress shouldBe request.roadAddress
+        customer.shippingAddresses[0].address.detailAddress shouldBe request.detailAddress
+        customer.shippingAddresses[0].address.zipcode shouldBe request.zipcode
     }
 
     @Test
     fun updateShippingAddress() {
         val command = createRegisterShippingAddressCommand(accountId)
 
-        getRegisterShippingAddressUseCase.registerAddress(command)
+        registerShippingAddressUseCase.registerAddress(command)
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
 
@@ -117,7 +117,7 @@ class CustomerApiTest(
             isDefault = true
         )
 
-        mockMvc.put("/api/customers/me/addresses/${addressId}") {
+        mockMvc.put("/api/customers/me/shipping-addresses/${addressId}") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(request)
             cookie(
@@ -132,18 +132,18 @@ class CustomerApiTest(
 
         customer.shippingAddresses shouldHaveSize 1
         customer.shippingAddresses[0].alias shouldBe request.alias
-        customer.shippingAddresses[0].roadAddress shouldBe request.roadAddress
-        customer.shippingAddresses[0].detailAddress shouldBe request.detailAddress
         customer.shippingAddresses[0].receiverName shouldBe request.receiverName
-        customer.shippingAddresses[0].zipcode shouldBe request.zipcode
         customer.shippingAddresses[0].isDefault shouldBe request.isDefault
+        customer.shippingAddresses[0].address.roadAddress shouldBe request.roadAddress
+        customer.shippingAddresses[0].address.detailAddress shouldBe request.detailAddress
+        customer.shippingAddresses[0].address.zipcode shouldBe request.zipcode
     }
 
     @Test
     fun updateShippingDefaultAddress() {
         val command1 = createRegisterShippingAddressCommand(accountId)
 
-        getRegisterShippingAddressUseCase.registerAddress(command1)
+        registerShippingAddressUseCase.registerAddress(command1)
 
         val command2 = createRegisterShippingAddressCommand(
             accountId,
@@ -155,7 +155,7 @@ class CustomerApiTest(
             false
         )
 
-        getRegisterShippingAddressUseCase.registerAddress(command2)
+        registerShippingAddressUseCase.registerAddress(command2)
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
 
@@ -164,7 +164,7 @@ class CustomerApiTest(
 
         val addressId = customer.shippingAddresses[1].id
 
-        mockMvc.patch("/api/customers/me/addresses/${addressId}") {
+        mockMvc.patch("/api/customers/me/shipping-addresses/${addressId}") {
             contentType = MediaType.APPLICATION_JSON
             cookie(
                 Cookie("accessToken", accessToken),
@@ -184,14 +184,14 @@ class CustomerApiTest(
     fun deleteShippingAddress() {
         val command = createRegisterShippingAddressCommand(accountId)
 
-        getRegisterShippingAddressUseCase.registerAddress(command)
+        registerShippingAddressUseCase.registerAddress(command)
 
         val customer = customerRepository.findWithAddressesOrThrow(accountId)
         val addressId = customer.shippingAddresses[0].id
 
         customer.shippingAddresses shouldHaveSize 1
 
-        mockMvc.delete("/api/customers/me/addresses/${addressId}") {
+        mockMvc.delete("/api/customers/me/shipping-addresses/${addressId}") {
             contentType = MediaType.APPLICATION_JSON
             cookie(
                 Cookie("accessToken", accessToken),

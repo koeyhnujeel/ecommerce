@@ -55,7 +55,7 @@ class AccountApiTest(
         account.email.address shouldBe registerRequest.email
         account.passwordHash shouldNotBe null
         account.status shouldBe AccountStatus.PENDING
-        account.role shouldBe UserRole.ROLE_CUSTOMER
+        account.roles.first() shouldBe UserRole.ROLE_CUSTOMER
         account.registeredAt shouldNotBe null
         account.activatedAt shouldBe null
         account.deactivatedAt shouldBe null

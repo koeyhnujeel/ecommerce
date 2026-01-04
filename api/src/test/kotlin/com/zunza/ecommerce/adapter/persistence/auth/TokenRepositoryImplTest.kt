@@ -1,5 +1,6 @@
 package com.zunza.ecommerce.adapter.persistence.auth
 
+import com.zunza.ecommerce.adapter.persistence.account.TokenRepositoryImpl
 import com.zunza.ecommerce.adapter.security.jwt.JwtProperties
 import com.zunza.ecommerce.config.TestContainersConfiguration
 import io.kotest.matchers.shouldBe
