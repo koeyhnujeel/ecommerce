@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface CustomerJpaRepository : JpaRepository<Customer, Long> {
     fun findByAccountId(accountId: Long): Customer?
 
-    @EntityGraph(attributePaths = ["addresses"])
+    @EntityGraph(attributePaths = ["shippingAddresses"])
     fun findWithAddressesByAccountId(accountId: Long): Customer?
 }
