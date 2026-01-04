@@ -1,8 +1,8 @@
 package com.zunza.ecommerce.adapter
 
 import com.zunza.ecommerce.adapter.security.jwt.exception.CustomTokenException
-import com.zunza.ecommerce.domain.account.AccountNotFoundException
-import com.zunza.ecommerce.domain.account.DuplicateEmailException
+import com.zunza.ecommerce.domain.BusinessException
+import com.zunza.ecommerce.domain.ErrorCode
 import org.springframework.http.*
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -13,6 +13,12 @@ import java.time.LocalDateTime
 
 @RestControllerAdvice
 class ApiControllerAdvice : ResponseEntityExceptionHandler() {
+    private val statusMap = mapOf(
+        ErrorCode.NOT_FOUND to HttpStatus.NOT_FOUND,
+        ErrorCode.DUPLICATE to HttpStatus.CONFLICT,
+        ErrorCode.INVALID_CREDENTIALS to HttpStatus.UNAUTHORIZED,
+        )
+
     override fun handleMethodArgumentNotValid(
         ex: MethodArgumentNotValidException,
         headers: HttpHeaders,
@@ -43,13 +49,12 @@ class ApiControllerAdvice : ResponseEntityExceptionHandler() {
     fun handleCustomTokenException(exception: CustomTokenException) =
         getProblemDetail(HttpStatus.UNAUTHORIZED, exception)
 
-    @ExceptionHandler(DuplicateEmailException::class)
-    fun handleDuplicateEmailException(exception: DuplicateEmailException) =
-        getProblemDetail(HttpStatus.CONFLICT, exception)
+    @ExceptionHandler(BusinessException::class)
+    fun handleBusinessException(exception: BusinessException): ProblemDetail {
+        val status = statusMap[exception.errorCode]!!
 
-    @ExceptionHandler(AccountNotFoundException::class)
-    fun handleAccountNotFoundException(exception: AccountNotFoundException) =
-        getProblemDetail(HttpStatus.NOT_FOUND, exception)
+        return getProblemDetail(status, exception)
+    }
 
     private fun getProblemDetail(status: HttpStatus, exception: Exception): ProblemDetail {
         val problemDetail = ProblemDetail.forStatusAndDetail(status, exception.message)
