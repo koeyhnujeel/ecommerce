@@ -5,12 +5,13 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.MappedSuperclass
 import org.hibernate.proxy.HibernateProxy
+import org.springframework.data.domain.AbstractAggregateRoot
 
 @MappedSuperclass
 abstract class AbstractEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
-) {
+) : AbstractAggregateRoot<AbstractEntity>() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false
