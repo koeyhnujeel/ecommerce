@@ -10,7 +10,7 @@ class Account private constructor(
     val email: Email,
     var passwordHash: String,
     var status: AccountStatus,
-    val role: UserRole,
+    val roles: MutableSet<UserRole>,
     val registeredAt: LocalDateTime,
     var activatedAt: LocalDateTime?,
     var lastLoginAt: LocalDateTime?,
@@ -28,7 +28,7 @@ class Account private constructor(
                 email = Email(email),
                 passwordHash = passwordEncoder.encode(password),
                 status = AccountStatus.PENDING,
-                role = UserRole.ROLE_CUSTOMER,
+                roles = mutableSetOf(UserRole.ROLE_CUSTOMER),
                 registeredAt = LocalDateTime.now(),
                 activatedAt = null,
                 lastLoginAt = null,
@@ -66,5 +66,11 @@ class Account private constructor(
         }
 
         this.lastLoginAt = LocalDateTime.now()
+    }
+
+    fun grantPartnerRole() {
+        check(this.status == AccountStatus.ACTIVE) { "ACTIVE 상태가 아닙니다." }
+
+        this.roles.add(UserRole.ROLE_PARTNER)
     }
 }
