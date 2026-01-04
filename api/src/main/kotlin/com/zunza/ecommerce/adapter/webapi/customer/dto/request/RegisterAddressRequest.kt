@@ -1,6 +1,6 @@
 package com.zunza.ecommerce.adapter.webapi.customer.dto.request
 
-import com.zunza.ecommerce.application.customer.service.dto.command.RegisterAddressCommand
+import com.zunza.ecommerce.application.customer.service.dto.command.RegisterShippingAddressCommand
 import jakarta.validation.constraints.NotBlank
 
 data class RegisterAddressRequest(
@@ -16,7 +16,7 @@ data class RegisterAddressRequest(
     val isDefault: Boolean
 ) {
     fun toCommand(accountId: Long) =
-        RegisterAddressCommand(
+        RegisterShippingAddressCommand(
             accountId = accountId,
             alias = alias,
             roadAddress = roadAddress,

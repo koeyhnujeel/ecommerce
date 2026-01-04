@@ -1,7 +1,7 @@
 package com.zunza.ecommerce.application.customer.provided
 
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
-import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
+import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
 import com.zunza.ecommerce.application.customer.service.CustomerCommandService
 import com.zunza.ecommerce.application.fixture.AddressCommandFixture
 import com.zunza.ecommerce.domain.customer.Customer
@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test
 
 class RegisterShippingAddressUseCaseTest {
     lateinit var customerRepository: CustomerRepository
-    lateinit var registerAddressUseCase: RegisterAddressUseCase
+    lateinit var registerShippingAddressUseCase: RegisterShippingAddressUseCase
 
     @BeforeEach
     fun setUp() {
         customerRepository = mockk()
-        registerAddressUseCase = CustomerCommandService(customerRepository)
+        registerShippingAddressUseCase = CustomerCommandService(customerRepository)
     }
 
     @AfterEach
@@ -40,15 +40,15 @@ class RegisterShippingAddressUseCaseTest {
             every { id } returns accountId
         }
 
-        every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
+        every { customerRepository.findWithShippingAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        val result = registerAddressUseCase.registerAddress(command)
+        val result = registerShippingAddressUseCase.registerShippingAddress(command)
 
         result shouldBe accountId
 
         verify(exactly = 1) {
-            customerRepository.findWithAddressesOrThrow(accountId)
+            customerRepository.findWithShippingAddressesOrThrow(accountId)
             customerRepository.save(customer)
             customer.registerShippingAddress(
                 command.alias,
@@ -70,10 +70,10 @@ class RegisterShippingAddressUseCaseTest {
             every { id } returns accountId
         }
 
-        every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
+        every { customerRepository.findWithShippingAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            registerAddressUseCase.registerAddress(command)
+            registerShippingAddressUseCase.registerShippingAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {

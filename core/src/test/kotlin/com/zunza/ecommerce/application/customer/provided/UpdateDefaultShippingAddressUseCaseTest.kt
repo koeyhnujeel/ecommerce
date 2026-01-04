@@ -1,9 +1,9 @@
 package com.zunza.ecommerce.application.customer.provided
 
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
-import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
+import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
 import com.zunza.ecommerce.application.customer.service.CustomerCommandService
-import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultAddressCommand
+import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultShippingAddressCommand
 import com.zunza.ecommerce.domain.customer.Customer
 import com.zunza.ecommerce.domain.customer.CustomerNotFoundException
 import io.kotest.assertions.throwables.shouldThrow
@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test
 
 class UpdateDefaultShippingAddressUseCaseTest {
     lateinit var customerRepository: CustomerRepository
-    lateinit var updateDefaultAddressUseCase: UpdateDefaultAddressUseCase
+    lateinit var updateDefaultShippingAddressUseCase: UpdateDefaultShippingAddressUseCase
 
     @BeforeEach
     fun setUp() {
         customerRepository = mockk()
-        updateDefaultAddressUseCase = CustomerCommandService(customerRepository)
+        updateDefaultShippingAddressUseCase = CustomerCommandService(customerRepository)
     }
 
     @AfterEach
@@ -35,19 +35,19 @@ class UpdateDefaultShippingAddressUseCaseTest {
     fun updateDefaultAddress() {
         val accountId = 1L;
         val addressId = 1L
-        val command = UpdateDefaultAddressCommand(accountId, addressId)
+        val command = UpdateDefaultShippingAddressCommand(accountId, addressId)
 
         val customer = mockk<Customer>(relaxed = true) {
             every { id } returns accountId
         }
 
-        every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
+        every { customerRepository.findWithShippingAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        updateDefaultAddressUseCase.updateDefaultAddress(command)
+        updateDefaultShippingAddressUseCase.updateDefaultShippingAddress(command)
 
         verify(exactly = 1) {
-            customerRepository.findWithAddressesOrThrow(accountId)
+            customerRepository.findWithShippingAddressesOrThrow(accountId)
             customerRepository.save(customer)
             customer.updateShippingDefaultAddress(command.addressId)
         }
@@ -57,16 +57,16 @@ class UpdateDefaultShippingAddressUseCaseTest {
     fun updateDefaultAddressFailCustomerNotFound() {
         val accountId = 1L;
         val addressId = 1L
-        val command = UpdateDefaultAddressCommand(accountId, addressId)
+        val command = UpdateDefaultShippingAddressCommand(accountId, addressId)
 
         val customer = mockk<Customer>(relaxed = true) {
             every { id } returns accountId
         }
 
-        every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
+        every { customerRepository.findWithShippingAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            updateDefaultAddressUseCase.updateDefaultAddress(command)
+            updateDefaultShippingAddressUseCase.updateDefaultShippingAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {

@@ -1,6 +1,6 @@
 package com.zunza.ecommerce.adapter.webapi.customer.dto.request
 
-import com.zunza.ecommerce.application.customer.service.dto.command.UpdateAddressCommand
+import com.zunza.ecommerce.application.customer.service.dto.command.UpdateShippingAddressCommand
 import jakarta.validation.constraints.NotBlank
 
 data class UpdateAddressRequest(
@@ -16,7 +16,7 @@ data class UpdateAddressRequest(
     val isDefault: Boolean
 ) {
     fun toCommand(accountId: Long, addressId: Long) =
-        UpdateAddressCommand(
+        UpdateShippingAddressCommand(
             accountId = accountId,
             addressId = addressId,
             alias = alias,

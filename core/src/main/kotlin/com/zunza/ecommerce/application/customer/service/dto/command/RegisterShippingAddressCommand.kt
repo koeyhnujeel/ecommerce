@@ -1,6 +1,6 @@
 package com.zunza.ecommerce.application.customer.service.dto.command
 
-data class RegisterAddressCommand(
+data class RegisterShippingAddressCommand(
     val accountId: Long,
     val alias: String,
     val roadAddress: String,

@@ -8,10 +8,10 @@ import com.zunza.ecommerce.application.account.provided.LoginUseCase
 import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
-import com.zunza.ecommerce.application.customer.provided.RegisterAddressUseCase
+import com.zunza.ecommerce.application.customer.provided.RegisterShippingAddressUseCase
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
-import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
-import com.zunza.ecommerce.application.customer.service.dto.command.RegisterAddressCommand
+import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
+import com.zunza.ecommerce.application.customer.service.dto.command.RegisterShippingAddressCommand
 import com.zunza.ecommerce.config.TestConfiguration
 import com.zunza.ecommerce.config.TestContainersConfiguration
 import io.kotest.matchers.collections.shouldHaveSize
@@ -33,7 +33,7 @@ class CustomerApiTest(
     val objectMapper: ObjectMapper,
     val loginUseCase: LoginUseCase,
     val customerRepository: CustomerRepository,
-    val registerShippingAddressUseCase: RegisterAddressUseCase,
+    val registerShippingAddressUseCase: RegisterShippingAddressUseCase,
     val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
     val activateCustomerAccountUseCase: ActivateCustomerAccountUseCase,
 ) {
@@ -87,7 +87,7 @@ class CustomerApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        val customer = customerRepository.findWithAddressesOrThrow(accountId)
+        val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
 
         customer.shippingAddresses shouldHaveSize 1
         customer.shippingAddresses[0].alias shouldBe request.alias
@@ -102,9 +102,9 @@ class CustomerApiTest(
     fun updateShippingAddress() {
         val command = createRegisterShippingAddressCommand(accountId)
 
-        registerShippingAddressUseCase.registerAddress(command)
+        registerShippingAddressUseCase.registerShippingAddress(command)
 
-        val customer = customerRepository.findWithAddressesOrThrow(accountId)
+        val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
 
         val addressId = customer.shippingAddresses[0].id
 
@@ -143,7 +143,7 @@ class CustomerApiTest(
     fun updateShippingDefaultAddress() {
         val command1 = createRegisterShippingAddressCommand(accountId)
 
-        registerShippingAddressUseCase.registerAddress(command1)
+        registerShippingAddressUseCase.registerShippingAddress(command1)
 
         val command2 = createRegisterShippingAddressCommand(
             accountId,
@@ -155,9 +155,9 @@ class CustomerApiTest(
             false
         )
 
-        registerShippingAddressUseCase.registerAddress(command2)
+        registerShippingAddressUseCase.registerShippingAddress(command2)
 
-        val customer = customerRepository.findWithAddressesOrThrow(accountId)
+        val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
 
         customer.shippingAddresses[0].isDefault shouldBe true
         customer.shippingAddresses[1].isDefault shouldBe false
@@ -184,9 +184,9 @@ class CustomerApiTest(
     fun deleteShippingAddress() {
         val command = createRegisterShippingAddressCommand(accountId)
 
-        registerShippingAddressUseCase.registerAddress(command)
+        registerShippingAddressUseCase.registerShippingAddress(command)
 
-        val customer = customerRepository.findWithAddressesOrThrow(accountId)
+        val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
         val addressId = customer.shippingAddresses[0].id
 
         customer.shippingAddresses shouldHaveSize 1
@@ -215,7 +215,7 @@ class CustomerApiTest(
         zipcode: String = "11111",
         isDefault: Boolean = true
     ) =
-        RegisterAddressCommand(
+        RegisterShippingAddressCommand(
             accountId = accountId,
             alias = alias,
             roadAddress = roadAddress,

@@ -1,7 +1,7 @@
 package com.zunza.ecommerce.application.customer.provided
 
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
-import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
+import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
 import com.zunza.ecommerce.application.customer.service.CustomerCommandService
 import com.zunza.ecommerce.application.fixture.AddressCommandFixture
 import com.zunza.ecommerce.domain.customer.Customer
@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test
 
 class UpdateShippingAddressUseCaseTest {
     lateinit var customerRepository: CustomerRepository
-    lateinit var updateAddressUseCase: UpdateAddressUseCase
+    lateinit var updateShippingAddressUseCase: UpdateShippingAddressUseCase
 
     @BeforeEach
     fun setUp() {
         customerRepository = mockk()
-        updateAddressUseCase = CustomerCommandService(customerRepository)
+        updateShippingAddressUseCase = CustomerCommandService(customerRepository)
     }
 
     @AfterEach
@@ -40,13 +40,13 @@ class UpdateShippingAddressUseCaseTest {
             every { id } returns accountId
         }
 
-        every { customerRepository.findWithAddressesOrThrow(any()) } returns customer
+        every { customerRepository.findWithShippingAddressesOrThrow(any()) } returns customer
         every { customerRepository.save(any()) } returns customer
 
-        updateAddressUseCase.updateAddress(command)
+        updateShippingAddressUseCase.updateShippingAddress(command)
 
         verify(exactly = 1) {
-            customerRepository.findWithAddressesOrThrow(accountId)
+            customerRepository.findWithShippingAddressesOrThrow(accountId)
             customerRepository.save(customer)
             customer.updateShippingAddress(
                 addressId = command.addressId,
@@ -69,10 +69,10 @@ class UpdateShippingAddressUseCaseTest {
             every { id } returns accountId
         }
 
-        every { customerRepository.findWithAddressesOrThrow(any()) } throws CustomerNotFoundException()
+        every { customerRepository.findWithShippingAddressesOrThrow(any()) } throws CustomerNotFoundException()
 
         shouldThrow<CustomerNotFoundException> {
-            updateAddressUseCase.updateAddress(command)
+            updateShippingAddressUseCase.updateShippingAddress(command)
         }.message shouldBe "존재하지 않는 회원입니다."
 
         verify(exactly = 0) {

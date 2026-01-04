@@ -2,7 +2,7 @@ package com.zunza.ecommerce.application.customer.service
 
 import com.zunza.ecommerce.application.customer.provided.*
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
-import com.zunza.ecommerce.application.customer.required.findWithAddressesOrThrow
+import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
 import com.zunza.ecommerce.application.customer.service.dto.command.*
 import com.zunza.ecommerce.domain.customer.Customer
 import org.springframework.stereotype.Service
@@ -13,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional
 class CustomerCommandService(
     private val customerRepository: CustomerRepository,
 ) : RegisterCustomerUseCase,
-    RegisterAddressUseCase,
-    UpdateAddressUseCase,
-    DeleteAddressUseCase,
-    UpdateDefaultAddressUseCase
+    RegisterShippingAddressUseCase,
+    UpdateShippingAddressUseCase,
+    DeleteShippingAddressUseCase,
+    UpdateDefaultShippingAddressUseCase
 {
     override fun registerCustomer(registerCommand: CustomerRegisterCommand) {
         val customer = Customer.register(registerCommand.accountId, registerCommand.name, registerCommand.phone)
@@ -24,8 +24,8 @@ class CustomerCommandService(
         customerRepository.save(customer)
     }
 
-    override fun registerAddress(command: RegisterAddressCommand): Long {
-        val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
+    override fun registerShippingAddress(command: RegisterShippingAddressCommand): Long {
+        val customer = customerRepository.findWithShippingAddressesOrThrow(command.accountId)
 
         customer.registerShippingAddress(
             alias = command.alias,
@@ -39,8 +39,8 @@ class CustomerCommandService(
         return customerRepository.save(customer).id
     }
 
-    override fun updateAddress(command: UpdateAddressCommand) {
-        val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
+    override fun updateShippingAddress(command: UpdateShippingAddressCommand) {
+        val customer = customerRepository.findWithShippingAddressesOrThrow(command.accountId)
 
         customer.updateShippingAddress(
             addressId = command.addressId,
@@ -55,16 +55,16 @@ class CustomerCommandService(
         customerRepository.save(customer)
     }
 
-    override fun deleteAddress(command: DeleteAddressCommand) {
-        val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
+    override fun deleteShippingAddress(command: DeleteShippingAddressCommand) {
+        val customer = customerRepository.findWithShippingAddressesOrThrow(command.accountId)
 
         customer.deleteShippingAddress(command.addressId)
 
         customerRepository.save(customer)
     }
 
-    override fun updateDefaultAddress(command: UpdateDefaultAddressCommand) {
-        val customer = customerRepository.findWithAddressesOrThrow(command.accountId)
+    override fun updateDefaultShippingAddress(command: UpdateDefaultShippingAddressCommand) {
+        val customer = customerRepository.findWithShippingAddressesOrThrow(command.accountId)
 
         customer.updateShippingDefaultAddress(command.addressId)
 

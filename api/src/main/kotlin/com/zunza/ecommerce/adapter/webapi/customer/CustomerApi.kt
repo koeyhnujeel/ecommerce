@@ -4,12 +4,12 @@ import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.RegisterAddressRequest
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.UpdateAddressRequest
 import com.zunza.ecommerce.adapter.webapi.customer.dto.response.RegisterAddressResponse
-import com.zunza.ecommerce.application.customer.provided.DeleteAddressUseCase
-import com.zunza.ecommerce.application.customer.provided.RegisterAddressUseCase
-import com.zunza.ecommerce.application.customer.provided.UpdateAddressUseCase
-import com.zunza.ecommerce.application.customer.provided.UpdateDefaultAddressUseCase
-import com.zunza.ecommerce.application.customer.service.dto.command.DeleteAddressCommand
-import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultAddressCommand
+import com.zunza.ecommerce.application.customer.provided.DeleteShippingAddressUseCase
+import com.zunza.ecommerce.application.customer.provided.RegisterShippingAddressUseCase
+import com.zunza.ecommerce.application.customer.provided.UpdateDefaultShippingAddressUseCase
+import com.zunza.ecommerce.application.customer.provided.UpdateShippingAddressUseCase
+import com.zunza.ecommerce.application.customer.service.dto.command.DeleteShippingAddressCommand
+import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultShippingAddressCommand
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/customers")
 class CustomerApi(
-    private val registerAddressUseCase: RegisterAddressUseCase,
-    private val updateAddressUseCase: UpdateAddressUseCase,
-    private val deleteAddressUseCase: DeleteAddressUseCase,
-    private val updateDefaultAddressUseCase: UpdateDefaultAddressUseCase
+    private val registerShippingAddressUseCase: RegisterShippingAddressUseCase,
+    private val updateShippingAddressUseCase: UpdateShippingAddressUseCase,
+    private val deleteShippingAddressUseCase: DeleteShippingAddressUseCase,
+    private val updateDefaultShippingAddressUseCase: UpdateDefaultShippingAddressUseCase
 ) {
     @PostMapping("/me/shipping-addresses")
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,7 +29,7 @@ class CustomerApi(
         @AuthenticationPrincipal accountId: Long,
         @RequestBody @Valid request: RegisterAddressRequest
     ): ApiResponse<RegisterAddressResponse> {
-        val customerId = registerAddressUseCase.registerAddress(request.toCommand(accountId))
+        val customerId = registerShippingAddressUseCase.registerShippingAddress(request.toCommand(accountId))
 
         return ApiResponse.success(RegisterAddressResponse(customerId))
     }
@@ -41,7 +41,7 @@ class CustomerApi(
         @AuthenticationPrincipal accountId: Long,
         @RequestBody @Valid request: UpdateAddressRequest
     ): ApiResponse<Any> {
-        updateAddressUseCase.updateAddress(request.toCommand(accountId, shippingAddressId))
+        updateShippingAddressUseCase.updateShippingAddress(request.toCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
@@ -52,7 +52,7 @@ class CustomerApi(
         @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
     ): ApiResponse<Any> {
-        updateDefaultAddressUseCase.updateDefaultAddress(UpdateDefaultAddressCommand(accountId, shippingAddressId))
+        updateDefaultShippingAddressUseCase.updateDefaultShippingAddress(UpdateDefaultShippingAddressCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
@@ -63,7 +63,7 @@ class CustomerApi(
         @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
     ): ApiResponse<Any> {
-        deleteAddressUseCase.deleteAddress(DeleteAddressCommand(accountId, shippingAddressId))
+        deleteShippingAddressUseCase.deleteShippingAddress(DeleteShippingAddressCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
