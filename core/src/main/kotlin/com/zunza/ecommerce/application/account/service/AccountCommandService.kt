@@ -1,9 +1,6 @@
 package com.zunza.ecommerce.application.account.service
 
-import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
-import com.zunza.ecommerce.application.account.provided.ChangePasswordUseCase
-import com.zunza.ecommerce.application.account.provided.DeactivateCustomerAccountUseCase
-import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.*
 import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.EmailSender
 import com.zunza.ecommerce.application.account.required.findByIdOrThrow
@@ -28,7 +25,8 @@ class AccountCommandService(
 ) : RegisterCustomerAccountUseCase,
     ActivateCustomerAccountUseCase,
     DeactivateCustomerAccountUseCase,
-    ChangePasswordUseCase
+    ChangePasswordUseCase,
+    GrantPartnerRoleUseCase
 {
     override fun registerCustomerAccount(registerCommand: AccountRegisterCommand): Long {
         checkDuplicateEmail(registerCommand)
@@ -64,6 +62,14 @@ class AccountCommandService(
         val account = accountRepository.findByIdOrThrow(changeCommand.accountId)
 
         account.changePassword(changeCommand.newPassword, passwordEncoder)
+
+        accountRepository.save(account)
+    }
+
+    override fun grantPartnerRole(accountId: Long) {
+        val account = accountRepository.findByIdOrThrow(accountId)
+
+        account.grantPartnerRole()
 
         accountRepository.save(account)
     }

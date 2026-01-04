@@ -31,7 +31,7 @@ class AccountAuthenticationService(
 
         account.login(loginCommand.password, passwordEncoder)
 
-        val accessToken = tokenProvider.generateAccessToken(account.id, account.role.toString())
+        val accessToken = tokenProvider.generateAccessToken(account.id, account.roles.toList())
         val refreshToken = tokenProvider.generateRefreshToken(account.id)
 
         tokenRepository.save(account.id, refreshToken)
@@ -54,7 +54,7 @@ class AccountAuthenticationService(
 
         val account = getCustomerAccountUseCase.findByIdOrThrow(accountId)
 
-        val newAccessToken = tokenProvider.generateAccessToken(account.id, account.role.toString())
+        val newAccessToken = tokenProvider.generateAccessToken(account.id, account.roles.toList())
         val newRefreshToken = tokenProvider.generateRefreshToken(account.id)
 
         tokenRepository.save(account.id, newRefreshToken)
