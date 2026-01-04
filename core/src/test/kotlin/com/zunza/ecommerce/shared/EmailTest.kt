@@ -15,8 +15,8 @@ class EmailTest {
 
     @Test
     fun emailFail() {
-        shouldThrow<IllegalArgumentException> { Email("") }.message shouldBe "이메일은 빈 값일 수 없습니다."
-        shouldThrow<IllegalArgumentException> { Email(" ") }.message shouldBe "이메일은 빈 값일 수 없습니다."
+        shouldThrow<IllegalArgumentException> { Email("") }.message shouldBe "이메일은 필수입니다."
+        shouldThrow<IllegalArgumentException> { Email(" ") }.message shouldBe "이메일은 필수입니다."
         shouldThrow<IllegalArgumentException> { Email("gildong") }.message shouldBe "잘못된 이메일 형식입니다."
         shouldThrow<IllegalArgumentException> { Email("zunza.com") }.message shouldBe "잘못된 이메일 형식입니다."
         shouldThrow<IllegalArgumentException> { Email("zunza!.com") }.message shouldBe "잘못된 이메일 형식입니다."
