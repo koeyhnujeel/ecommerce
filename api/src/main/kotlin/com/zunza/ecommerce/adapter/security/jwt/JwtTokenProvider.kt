@@ -5,6 +5,7 @@ import com.zunza.ecommerce.adapter.security.jwt.exception.InvalidSignatureTokenE
 import com.zunza.ecommerce.adapter.security.jwt.exception.MalformedTokenException
 import com.zunza.ecommerce.adapter.security.jwt.exception.UnsupportedTokenException
 import com.zunza.ecommerce.application.account.required.TokenProvider
+import com.zunza.ecommerce.domain.account.UserRole
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException
@@ -19,12 +20,12 @@ import javax.crypto.SecretKey
 class JwtTokenProvider(
     private val properties: JwtProperties,
 ) : TokenProvider {
-    override fun generateAccessToken(accountId: Long, role: String): String {
+    override fun generateAccessToken(accountId: Long, roles: List<UserRole>): String {
         val now = Instant.now()
         return Jwts
             .builder()
             .subject(accountId.toString())
-            .claim("role", role)
+            .claim("roles", roles)
             .claim("jti", UUID.randomUUID().toString())
             .issuedAt(Date(now.toEpochMilli()))
             .expiration(Date(now.plusMillis(properties.accessTokenTtl).toEpochMilli()))
@@ -66,9 +67,9 @@ class JwtTokenProvider(
         return claims.subject.toLong()
     }
 
-    override fun getAccountRole(token: String): String {
+    override fun getAccountRoles(token: String): List<String> {
         val claims = parseClaims(token)
-        return claims["role"] as String
+        return claims["roles"] as List<String>
     }
 
     override fun getRemainingTime(token: String): Long {

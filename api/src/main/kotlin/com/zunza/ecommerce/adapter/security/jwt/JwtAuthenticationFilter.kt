@@ -44,10 +44,14 @@ class JwtAuthenticationFilter(
     }
 
     private fun getAuthentication(token: String): Authentication {
+        val roles = tokenProvider.getAccountRoles(token)
+
+        val authorities = roles.map { SimpleGrantedAuthority(it) }
+
         return UsernamePasswordAuthenticationToken(
             tokenProvider.getAccountId(token),
             null,
-            listOf(SimpleGrantedAuthority(tokenProvider.getAccountRole(token)))
+            authorities
         )
     }
 
