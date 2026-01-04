@@ -23,7 +23,7 @@ class CustomerApi(
     private val deleteAddressUseCase: DeleteAddressUseCase,
     private val updateDefaultAddressUseCase: UpdateDefaultAddressUseCase
 ) {
-    @PostMapping("/me/addresses")
+    @PostMapping("/me/shipping-addresses")
     @ResponseStatus(HttpStatus.CREATED)
     fun registerAddress(
         @AuthenticationPrincipal accountId: Long,
@@ -34,36 +34,36 @@ class CustomerApi(
         return ApiResponse.success(RegisterAddressResponse(customerId))
     }
 
-    @PutMapping("/me/addresses/{addressId}")
+    @PutMapping("/me/shipping-addresses/{shippingAddressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateAddress(
-        @PathVariable addressId: Long,
+        @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
         @RequestBody @Valid request: UpdateAddressRequest
     ): ApiResponse<Any> {
-        updateAddressUseCase.updateAddress(request.toCommand(accountId, addressId))
+        updateAddressUseCase.updateAddress(request.toCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
 
-    @PatchMapping("/me/addresses/{addressId}")
+    @PatchMapping("/me/shipping-addresses/{shippingAddressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateDefaultAddress(
-        @PathVariable addressId: Long,
+        @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
     ): ApiResponse<Any> {
-        updateDefaultAddressUseCase.updateDefaultAddress(UpdateDefaultAddressCommand(accountId, addressId))
+        updateDefaultAddressUseCase.updateDefaultAddress(UpdateDefaultAddressCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
 
-    @DeleteMapping("/me/addresses/{addressId}")
+    @DeleteMapping("/me/shipping-addresses/{shippingAddressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteAddress(
-        @PathVariable addressId: Long,
+        @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
     ): ApiResponse<Any> {
-        deleteAddressUseCase.deleteAddress(DeleteAddressCommand(accountId, addressId))
+        deleteAddressUseCase.deleteAddress(DeleteAddressCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
