@@ -50,7 +50,7 @@ class PartnerApplicationTest {
     fun submitFailInvalidBusinessInfo() {
         shouldThrow<IllegalArgumentException> {
             partnerApplicationSubmit(businessNumber = "")
-        }.message shouldBe "사업자등록번호는 필수입니다."
+        }.message shouldBe "사업자등록번호 형식이 올바르지 않습니다."
 
         shouldThrow<IllegalArgumentException> {
             partnerApplicationSubmit(companyName = "")
