@@ -3,7 +3,7 @@ package com.zunza.ecommerce.application.onboarding.service.dto.command
 data class SubmitCommand(
     val accountId: Long,
     val representativeName: String,
-    val contractEmail: String,
+    val contactEmail: String,
     val representativePhone: String,
     val businessNumber: String,
     val companyName: String,

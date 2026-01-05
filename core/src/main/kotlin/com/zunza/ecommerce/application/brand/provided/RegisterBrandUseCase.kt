@@ -1,7 +1,7 @@
 package com.zunza.ecommerce.application.brand.provided
 
-import com.zunza.ecommerce.application.brand.service.dto.command.RegisterBrandCommand
+import com.zunza.ecommerce.domain.brand.BrandInfo
 
 interface RegisterBrandUseCase {
-    fun registerBrand(command: RegisterBrandCommand)
+    fun registerBrand(partnerId: Long, brandInfo: BrandInfo)
 }

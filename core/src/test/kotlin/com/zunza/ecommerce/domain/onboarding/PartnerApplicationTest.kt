@@ -12,7 +12,7 @@ class PartnerApplicationTest {
         val partnerApplication = partnerApplicationSubmit()
 
         partnerApplication.applicantInfo.representativeName shouldBe "홍길동"
-        partnerApplication.applicantInfo.contractEmail.address shouldBe "zunza@email.com"
+        partnerApplication.applicantInfo.contactEmail.address shouldBe "zunza@email.com"
         partnerApplication.applicantInfo.representativePhone shouldBe "01011112222"
         partnerApplication.businessInfo.businessNumber shouldBe "1234567890"
         partnerApplication.businessInfo.companyName shouldBe "홍컴퍼니"
@@ -175,7 +175,7 @@ class PartnerApplicationTest {
         return PartnerApplication.submit(
             accountId = accountId,
             representativeName = representativeName,
-            contractEmail = contractEmail,
+            contactEmail = contractEmail,
             representativePhone = representativePhone,
             businessNumber = businessNumber,
             companyName = companyName,

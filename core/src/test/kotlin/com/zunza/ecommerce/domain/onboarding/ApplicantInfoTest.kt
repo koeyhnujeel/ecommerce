@@ -15,7 +15,7 @@ class ApplicantInfoTest {
         )
 
         applicantInfo.representativeName shouldBe "홍길동"
-        applicantInfo.contractEmail.address shouldBe "hong@email.com"
+        applicantInfo.contactEmail.address shouldBe "hong@email.com"
         applicantInfo.representativePhone shouldBe "01011112222"
     }
 

@@ -2,7 +2,6 @@ package com.zunza.ecommerce.domain.onboarding
 
 import com.zunza.ecommerce.domain.AbstractEntity
 import com.zunza.ecommerce.domain.brand.BrandInfo
-import com.zunza.ecommerce.domain.onboarding.event.PartnerApplicationApprovedEvent
 import com.zunza.ecommerce.domain.partner.BusinessInfo
 import com.zunza.ecommerce.domain.shared.BankAccount
 import com.zunza.ecommerce.domain.shared.Email
@@ -19,12 +18,12 @@ class PartnerApplication private constructor(
     var status: ApplicationStatus,
     val submittedAt: LocalDateTime,
     val reviewHistories: MutableList<ReviewHistory> = mutableListOf()
-) : AbstractEntity() {
+) : AbstractEntity<PartnerApplication>() {
     companion object {
         fun submit(
             accountId: Long,
             representativeName: String,
-            contractEmail: String,
+            contactEmail: String,
             representativePhone: String,
             businessNumber: String,
             companyName: String,
@@ -35,7 +34,7 @@ class PartnerApplication private constructor(
             accountNumber: String,
             accountHolder: String
         ): PartnerApplication {
-            val applicantInfo = ApplicantInfo(representativeName, Email(contractEmail), representativePhone)
+            val applicantInfo = ApplicantInfo(representativeName, Email(contactEmail), representativePhone)
             val businessInfo = BusinessInfo(businessNumber, companyName)
             val brandInfo = BrandInfo(brandNameKor, brandNameEng, brandDescription)
             val bankAccount = BankAccount(bankName, accountNumber, accountHolder)
@@ -65,8 +64,6 @@ class PartnerApplication private constructor(
 
         this.status = ApplicationStatus.APPROVED
         this.reviewHistories.add(reviewHistory)
-
-        registerEvent(PartnerApplicationApprovedEvent.from(this))
     }
 
     fun reject(reason: String) {

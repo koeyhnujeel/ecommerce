@@ -9,7 +9,7 @@ class Customer private constructor(
     val name: String,
     val phone: String,
     val shippingAddresses: MutableList<ShippingAddress> = mutableListOf()
-) : AbstractEntity() {
+) : AbstractEntity<Customer>() {
     companion object {
         fun register(accountId: Long, name: String, phone: String, ): Customer {
             require(accountId > 0) { "accountId는 0 이하일 수 없습니다." }

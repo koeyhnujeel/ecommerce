@@ -8,10 +8,10 @@ import org.hibernate.proxy.HibernateProxy
 import org.springframework.data.domain.AbstractAggregateRoot
 
 @MappedSuperclass
-abstract class AbstractEntity(
+abstract class AbstractEntity<T : AbstractEntity<T>>(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0
-) : AbstractAggregateRoot<AbstractEntity>() {
+) : AbstractAggregateRoot<T>() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false
@@ -28,7 +28,7 @@ abstract class AbstractEntity(
 
         if (thisEffectiveClass != otherEffectiveClass) return false
 
-        other as AbstractEntity
+        other as AbstractEntity<T>
         return this.id != 0L && this.id == other.id
     }
 

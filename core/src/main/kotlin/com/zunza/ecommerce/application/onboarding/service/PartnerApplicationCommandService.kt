@@ -1,5 +1,7 @@
 package com.zunza.ecommerce.application.onboarding.service
 
+import com.zunza.ecommerce.application.account.provided.GrantPartnerRoleUseCase
+import com.zunza.ecommerce.application.brand.provided.RegisterBrandUseCase
 import com.zunza.ecommerce.application.onboarding.provided.ApproveUseCase
 import com.zunza.ecommerce.application.onboarding.provided.RejectUseCase
 import com.zunza.ecommerce.application.onboarding.provided.StartReviewUseCase
@@ -9,6 +11,7 @@ import com.zunza.ecommerce.application.onboarding.required.findByIdOrThrow
 import com.zunza.ecommerce.application.onboarding.service.dto.command.RejectCommand
 import com.zunza.ecommerce.application.onboarding.service.dto.command.SubmitCommand
 import com.zunza.ecommerce.application.onboarding.service.dto.result.SubmitResult
+import com.zunza.ecommerce.application.partner.provided.RegisterPartnerUseCase
 import com.zunza.ecommerce.domain.onboarding.DuplicateBusinessNumberException
 import com.zunza.ecommerce.domain.onboarding.PartnerApplication
 import org.springframework.stereotype.Service
@@ -17,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class PartnerApplicationCommandService(
-    private val partnerApplicationRepository: PartnerApplicationRepository
+    private val partnerApplicationRepository: PartnerApplicationRepository,
+    private val grantPartnerRoleUseCase: GrantPartnerRoleUseCase,
+    private val registerPartnerUseCase: RegisterPartnerUseCase,
+    private val registerBrandUseCase: RegisterBrandUseCase
 ) : SubmitUseCase,
     StartReviewUseCase,
     ApproveUseCase,
@@ -29,7 +35,7 @@ class PartnerApplicationCommandService(
         val partnerApplication = PartnerApplication.submit(
             accountId = command.accountId,
             representativeName = command.representativeName,
-            contractEmail = command.contractEmail,
+            contactEmail = command.contactEmail,
             representativePhone = command.representativePhone,
             businessNumber = command.businessNumber,
             companyName = command.companyName,
@@ -59,7 +65,16 @@ class PartnerApplicationCommandService(
 
         partnerApplication.approve()
 
-        partnerApplicationRepository.save(partnerApplication)
+        grantPartnerRoleUseCase.grantPartnerRole(partnerApplication.accountId)
+
+        val partnerId = registerPartnerUseCase.registerPartner(
+            partnerApplication.accountId,
+            partnerApplication.id,
+            partnerApplication.businessInfo,
+            partnerApplication.settlementAccount
+        )
+
+        registerBrandUseCase.registerBrand(partnerId, partnerApplication.brandInfo)
     }
 
     override fun reject(command: RejectCommand) {

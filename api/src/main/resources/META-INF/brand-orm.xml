@@ -8,7 +8,7 @@
     <access>FIELD</access>
 
     <entity class="com.zunza.ecommerce.domain.brand.Brand">
-        <table name="partner"/>
+        <table name="brand"/>
         <attributes>
             <basic name="partnerId">
                 <column name="partner_id" unique="true" nullable="false"/>

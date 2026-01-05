@@ -1,7 +1,13 @@
 package com.zunza.ecommerce.application.partner.provided
 
-import com.zunza.ecommerce.application.partner.service.dto.command.RegisterPartnerCommand
+import com.zunza.ecommerce.domain.partner.BusinessInfo
+import com.zunza.ecommerce.domain.shared.BankAccount
 
 interface RegisterPartnerUseCase {
-    fun registerPartner(command: RegisterPartnerCommand): Long
+    fun registerPartner(
+        accountId: Long,
+        partnerApplicationId: Long,
+        businessInfo: BusinessInfo,
+        settlementAccount: BankAccount,
+    ): Long
 }

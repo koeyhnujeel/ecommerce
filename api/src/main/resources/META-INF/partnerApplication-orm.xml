@@ -59,7 +59,7 @@
             <basic name="representativePhone">
                 <column name="representative_phone" nullable="false" length="200"/>
             </basic>
-            <embedded name="contractEmail"/>
+            <embedded name="contactEmail"/>
         </attributes>
     </embeddable>
 

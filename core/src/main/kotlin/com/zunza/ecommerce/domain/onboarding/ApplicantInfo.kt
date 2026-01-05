@@ -6,7 +6,7 @@ import jakarta.persistence.Embeddable
 @Embeddable
 data class ApplicantInfo(
     val representativeName: String,
-    val contractEmail: Email,
+    val contactEmail: Email,
     val representativePhone: String,
 ) {
     init {

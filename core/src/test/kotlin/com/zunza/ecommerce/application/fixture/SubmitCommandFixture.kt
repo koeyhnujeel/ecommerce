@@ -7,7 +7,7 @@ object SubmitCommandFixture {
     fun createSubmitCommand(
         accountId: Long = 1L,
         representativeName: String = "홍길동",
-        contractEmail: String = "gildong@email.com",
+        contactEmail: String = "gildong@email.com",
         representativePhone: String = "01012345678",
         businessNumber: String = "1234567890",
         companyName: String = "홍길동 컴퍼니",
@@ -20,7 +20,7 @@ object SubmitCommandFixture {
     ) = SubmitCommand(
         accountId = accountId,
         representativeName = representativeName,
-        contractEmail = contractEmail,
+        contactEmail = contactEmail,
         representativePhone = representativePhone,
         businessNumber = businessNumber,
         companyName = companyName,
