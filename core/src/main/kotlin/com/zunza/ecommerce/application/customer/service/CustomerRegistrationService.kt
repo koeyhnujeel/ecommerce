@@ -1,9 +1,10 @@
 package com.zunza.ecommerce.application.customer.service
 
-import com.zunza.ecommerce.application.customer.provided.*
+import com.zunza.ecommerce.application.customer.provided.CustomerRegister
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
 import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
-import com.zunza.ecommerce.application.customer.service.dto.command.*
+import com.zunza.ecommerce.application.customer.service.dto.command.CustomerRegisterCommand
+import com.zunza.ecommerce.application.customer.service.dto.command.RegisterShippingAddressCommand
 import com.zunza.ecommerce.domain.customer.Customer
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

@@ -3,7 +3,6 @@ package com.zunza.ecommerce.application.customer.provided
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
 import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
 import com.zunza.ecommerce.application.customer.service.CustomerManagementService
-import com.zunza.ecommerce.application.customer.service.CustomerRegistrationService
 import com.zunza.ecommerce.application.customer.service.dto.command.DeleteShippingAddressCommand
 import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultShippingAddressCommand
 import com.zunza.ecommerce.application.fixture.AddressCommandFixture

@@ -7,7 +7,6 @@ import com.zunza.ecommerce.application.onboarding.required.SellerApplicationRepo
 import com.zunza.ecommerce.application.onboarding.required.findByIdOrThrow
 import com.zunza.ecommerce.application.onboarding.service.SellerApplicationProcessingService
 import com.zunza.ecommerce.application.seller.provided.SellerRegister
-import com.zunza.ecommerce.application.seller.provided.SellerRegisterTest
 import com.zunza.ecommerce.domain.onboarding.SellerApplication
 import com.zunza.ecommerce.domain.onboarding.SellerApplicationNotFoundException
 import io.kotest.assertions.throwables.shouldThrow
