@@ -5,10 +5,10 @@ import com.zunza.ecommerce.application.onboarding.service.dto.command.RejectComm
 object RejectCommandFixture {
 
     fun createRejectCommand(
-        partnerApplicationId: Long = 1L,
+        sellerApplicationId: Long = 1L,
         reason: String = "Test reason"
     ) = RejectCommand(
-        partnerApplicationId = partnerApplicationId,
+        sellerApplicationId = sellerApplicationId,
         reason = reason
     )
 }

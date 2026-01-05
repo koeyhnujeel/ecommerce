@@ -1,9 +1,7 @@
 package com.zunza.ecommerce.application.account.service
 
-import com.zunza.ecommerce.application.account.provided.GetCustomerAccountUseCase
-import com.zunza.ecommerce.application.account.provided.LoginUseCase
-import com.zunza.ecommerce.application.account.provided.LogoutUseCase
-import com.zunza.ecommerce.application.account.provided.RefreshUseCase
+import com.zunza.ecommerce.application.account.provided.AccountAuthenticator
+import com.zunza.ecommerce.application.account.provided.AccountFinder
 import com.zunza.ecommerce.application.account.required.TokenProvider
 import com.zunza.ecommerce.application.account.required.TokenRepository
 import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
@@ -21,11 +19,8 @@ class AccountAuthenticationService(
     private val tokenProvider: TokenProvider,
     private val passwordEncoder: PasswordEncoder,
     private val tokenRepository: TokenRepository,
-    private val getCustomerAccountUseCase: GetCustomerAccountUseCase,
-) : LoginUseCase,
-    LogoutUseCase,
-    RefreshUseCase
-{
+    private val accountFinder: AccountFinder,
+) : AccountAuthenticator {
     override fun login(loginCommand: LoginCommand): LoginResult {
         val account = getAccount(loginCommand)
 
@@ -52,7 +47,7 @@ class AccountAuthenticationService(
 
         val accountId = tokenProvider.getAccountId(refreshToken)
 
-        val account = getCustomerAccountUseCase.findByIdOrThrow(accountId)
+        val account = accountFinder.findByIdOrThrow(accountId)
 
         val newAccessToken = tokenProvider.generateAccessToken(account.id, account.roles.toList())
         val newRefreshToken = tokenProvider.generateRefreshToken(account.id)
@@ -63,7 +58,7 @@ class AccountAuthenticationService(
     }
 
     private fun getAccount(loginCommand: LoginCommand) =
-        getCustomerAccountUseCase.findByEmail(loginCommand.email) ?: throw InvalidCredentialsException()
+        accountFinder.findByEmail(loginCommand.email) ?: throw InvalidCredentialsException()
 
     private fun addBlacklist(token: String, remainingTime: Long) {
         if (remainingTime > 0L) {

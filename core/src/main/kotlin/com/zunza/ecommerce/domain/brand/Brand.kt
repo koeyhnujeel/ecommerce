@@ -5,13 +5,13 @@ import jakarta.persistence.Entity
 
 @Entity
 class Brand(
-    val partnerId: Long,
+    val sellerId: Long,
     val brandInfo: BrandInfo,
 ) : AbstractEntity<Brand>() {
     companion object {
         fun register(
-            partnerId: Long,
+            sellerId: Long,
             brandInfo: BrandInfo,
-        ) = Brand(partnerId, brandInfo)
+        ) = Brand(sellerId, brandInfo)
     }
 }

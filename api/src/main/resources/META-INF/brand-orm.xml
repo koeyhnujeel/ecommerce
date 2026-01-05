@@ -10,8 +10,8 @@
     <entity class="com.zunza.ecommerce.domain.brand.Brand">
         <table name="brand"/>
         <attributes>
-            <basic name="partnerId">
-                <column name="partner_id" unique="true" nullable="false"/>
+            <basic name="sellerId">
+                <column name="seller_id" unique="true" nullable="false"/>
             </basic>
             <embedded name="brandInfo"/>
         </attributes>

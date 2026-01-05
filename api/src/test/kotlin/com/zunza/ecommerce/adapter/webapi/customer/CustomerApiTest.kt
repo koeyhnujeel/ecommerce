@@ -3,12 +3,12 @@ package com.zunza.ecommerce.adapter.webapi.customer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.RegisterAddressRequest
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.UpdateAddressRequest
-import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
-import com.zunza.ecommerce.application.account.provided.LoginUseCase
-import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.AccountAuthenticator
+import com.zunza.ecommerce.application.account.provided.AccountManager
+import com.zunza.ecommerce.application.account.provided.AccountRegister
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
-import com.zunza.ecommerce.application.customer.provided.RegisterShippingAddressUseCase
+import com.zunza.ecommerce.application.customer.provided.CustomerRegister
 import com.zunza.ecommerce.application.customer.required.CustomerRepository
 import com.zunza.ecommerce.application.customer.required.findWithShippingAddressesOrThrow
 import com.zunza.ecommerce.application.customer.service.dto.command.RegisterShippingAddressCommand
@@ -31,11 +31,11 @@ import org.springframework.transaction.annotation.Transactional
 class CustomerApiTest(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val loginUseCase: LoginUseCase,
+    val accountManager: AccountManager,
+    val accountRegister: AccountRegister,
+    val customerRegister: CustomerRegister,
     val customerRepository: CustomerRepository,
-    val registerShippingAddressUseCase: RegisterShippingAddressUseCase,
-    val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
-    val activateCustomerAccountUseCase: ActivateCustomerAccountUseCase,
+    val accountAuthenticator: AccountAuthenticator,
 ) {
     var accountId: Long = 0
     lateinit var accessToken: String
@@ -50,13 +50,13 @@ class CustomerApiTest(
             phone = "01012345678",
         )
 
-        accountId = registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
+        accountId = accountRegister.registerCustomerAccount(registerCommand)
 
-        activateCustomerAccountUseCase.activateCustomerAccount(accountId)
+        accountManager.activateCustomerAccount(accountId)
 
         val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
 
-        val loginResult = loginUseCase.login(loginCommand)
+        val loginResult = accountAuthenticator.login(loginCommand)
 
         accessToken = loginResult.accessToken
         refreshToken = loginResult.refreshToken
@@ -102,7 +102,7 @@ class CustomerApiTest(
     fun updateShippingAddress() {
         val command = createRegisterShippingAddressCommand(accountId)
 
-        registerShippingAddressUseCase.registerShippingAddress(command)
+        customerRegister.registerShippingAddress(command)
 
         val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
 
@@ -143,7 +143,7 @@ class CustomerApiTest(
     fun updateShippingDefaultAddress() {
         val command1 = createRegisterShippingAddressCommand(accountId)
 
-        registerShippingAddressUseCase.registerShippingAddress(command1)
+        customerRegister.registerShippingAddress(command1)
 
         val command2 = createRegisterShippingAddressCommand(
             accountId,
@@ -155,7 +155,7 @@ class CustomerApiTest(
             false
         )
 
-        registerShippingAddressUseCase.registerShippingAddress(command2)
+        customerRegister.registerShippingAddress(command2)
 
         val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
 
@@ -184,7 +184,7 @@ class CustomerApiTest(
     fun deleteShippingAddress() {
         val command = createRegisterShippingAddressCommand(accountId)
 
-        registerShippingAddressUseCase.registerShippingAddress(command)
+        customerRegister.registerShippingAddress(command)
 
         val customer = customerRepository.findWithShippingAddressesOrThrow(accountId)
         val addressId = customer.shippingAddresses[0].id

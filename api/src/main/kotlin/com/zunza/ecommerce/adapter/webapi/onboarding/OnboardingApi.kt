@@ -3,9 +3,11 @@ package com.zunza.ecommerce.adapter.webapi.onboarding
 import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.onboarding.dto.request.RejectRequest
 import com.zunza.ecommerce.adapter.webapi.onboarding.dto.request.SubmitRequest
-import com.zunza.ecommerce.adapter.webapi.onboarding.dto.response.CheckApplicationStatusResponse
+import com.zunza.ecommerce.adapter.webapi.onboarding.dto.response.GetSellerApplicationStatusResponse
 import com.zunza.ecommerce.adapter.webapi.onboarding.dto.response.SubmitResponse
-import com.zunza.ecommerce.application.onboarding.provided.*
+import com.zunza.ecommerce.application.onboarding.provided.SellerApplicationFinder
+import com.zunza.ecommerce.application.onboarding.provided.SellerApplicationProcessor
+import com.zunza.ecommerce.application.onboarding.provided.SellerApplicationRegister
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -14,11 +16,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/partnerApplications")
 class OnboardingApi(
-    private val submitUseCase: SubmitUseCase,
-    private val startReviewUseCase: StartReviewUseCase,
-    private val approveUseCase: ApproveUseCase,
-    private val rejectUseCase: RejectUseCase,
-    private val checkApplicationStatusUseCase: CheckApplicationStatusUseCase,
+    private val sellerApplicationRegister: SellerApplicationRegister,
+    private val sellerApplicationProcessor: SellerApplicationProcessor,
+    private val sellerApplicationFinder: SellerApplicationFinder,
 ) {
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping
@@ -27,7 +27,7 @@ class OnboardingApi(
         @AuthenticationPrincipal accountId: Long,
         @RequestBody request: SubmitRequest
     ): ApiResponse<SubmitResponse> {
-        val result = submitUseCase.submit(request.toCommand(accountId))
+        val result = sellerApplicationRegister.submit(request.toCommand(accountId))
 
         return ApiResponse.success(SubmitResponse.from(result.partnerApplicationId))
     }
@@ -38,7 +38,7 @@ class OnboardingApi(
     fun startReview(
         @PathVariable partnerApplicationId: Long,
     ): ApiResponse<Any> {
-        startReviewUseCase.startReview(partnerApplicationId)
+        sellerApplicationProcessor.startReview(partnerApplicationId)
 
         return ApiResponse.success()
     }
@@ -49,7 +49,7 @@ class OnboardingApi(
     fun approve(
         @PathVariable partnerApplicationId: Long,
     ): ApiResponse<Any> {
-        approveUseCase.approve(partnerApplicationId)
+        sellerApplicationProcessor.approve(partnerApplicationId)
 
         return ApiResponse.success()
     }
@@ -61,18 +61,18 @@ class OnboardingApi(
         @PathVariable partnerApplicationId: Long,
         @RequestBody request: RejectRequest
     ): ApiResponse<Any> {
-        rejectUseCase.reject(request.toCommand(partnerApplicationId))
+        sellerApplicationProcessor.reject(request.toCommand(partnerApplicationId))
 
         return ApiResponse.success()
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @GetMapping
+    @GetMapping("/me")
     fun checkApplicationStatus(
         @AuthenticationPrincipal accountId: Long,
-    ): ApiResponse<CheckApplicationStatusResponse> {
-        val result = checkApplicationStatusUseCase.checkApplicationStatus(accountId)
+    ): ApiResponse<GetSellerApplicationStatusResponse> {
+        val result = sellerApplicationFinder.getSellerApplicationStatus(accountId)
 
-        return ApiResponse.success(CheckApplicationStatusResponse.from(result))
+        return ApiResponse.success(GetSellerApplicationStatusResponse.from(result))
     }
 }

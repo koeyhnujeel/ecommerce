@@ -4,22 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.persistence.brand.BrandJpaRepository
-import com.zunza.ecommerce.adapter.persistence.partner.PartnerJpaRepository
+import com.zunza.ecommerce.adapter.persistence.seller.SellerJpaRepository
 import com.zunza.ecommerce.adapter.webapi.onboarding.dto.request.RejectRequest
 import com.zunza.ecommerce.adapter.webapi.onboarding.dto.response.SubmitResponse
 import com.zunza.ecommerce.adapter.webapi.onboarding.fixture.SubmitRequestFixture
-import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
-import com.zunza.ecommerce.application.account.provided.LoginUseCase
-import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.AccountAuthenticator
+import com.zunza.ecommerce.application.account.provided.AccountManager
+import com.zunza.ecommerce.application.account.provided.AccountRegister
 import com.zunza.ecommerce.application.account.required.AccountRepository
 import com.zunza.ecommerce.application.account.required.TokenProvider
 import com.zunza.ecommerce.application.account.required.findByIdOrThrow
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
-import com.zunza.ecommerce.application.onboarding.provided.RejectUseCase
-import com.zunza.ecommerce.application.onboarding.provided.StartReviewUseCase
-import com.zunza.ecommerce.application.onboarding.provided.SubmitUseCase
-import com.zunza.ecommerce.application.onboarding.required.PartnerApplicationRepository
+import com.zunza.ecommerce.application.onboarding.provided.SellerApplicationProcessor
+import com.zunza.ecommerce.application.onboarding.provided.SellerApplicationRegister
+import com.zunza.ecommerce.application.onboarding.required.SellerApplicationRepository
 import com.zunza.ecommerce.application.onboarding.required.findByIdOrThrow
 import com.zunza.ecommerce.application.onboarding.service.dto.command.SubmitCommand
 import com.zunza.ecommerce.config.TestConfiguration
@@ -53,15 +52,14 @@ class OnboardingApiTest(
 
     val accountRepository: AccountRepository,
     val brandJpaRepository: BrandJpaRepository,
-    val partnerJpaRepository: PartnerJpaRepository,
-    val partnerApplicationRepository: PartnerApplicationRepository,
+    val sellerJpaRepository: SellerJpaRepository,
+    val sellerApplicationRepository: SellerApplicationRepository,
 
-    val loginUseCase: LoginUseCase,
-    val submitUseCase: SubmitUseCase,
-    val rejectUseCase: RejectUseCase,
-    val startReviewUseCase: StartReviewUseCase,
-    val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
-    val activateCustomerAccountUseCase: ActivateCustomerAccountUseCase
+    val accountAuthenticator: AccountAuthenticator,
+    val sellerApplicationRegister: SellerApplicationRegister,
+    val sellerApplicationProcessor: SellerApplicationProcessor,
+    val accountRegister: AccountRegister,
+    val accountManager: AccountManager
 ) {
     private var accountId = 0L
     lateinit var accessToken: String
@@ -76,13 +74,13 @@ class OnboardingApiTest(
             phone = "01012345678",
         )
 
-        accountId = registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
+        accountId = accountRegister.registerCustomerAccount(registerCommand)
 
-        activateCustomerAccountUseCase.activateCustomerAccount(accountId)
+        accountManager.activateCustomerAccount(accountId)
 
         val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
 
-        val loginResult = loginUseCase.login(loginCommand)
+        val loginResult = accountAuthenticator.login(loginCommand)
 
         accessToken = loginResult.accessToken
         refreshToken = loginResult.refreshToken
@@ -108,7 +106,7 @@ class OnboardingApiTest(
 
         val response: ApiResponse<SubmitResponse> = objectMapper.readValue(result.response.contentAsString)
 
-        val partnerApplication = partnerApplicationRepository.findByIdOrThrow(response.data!!.partnerApplicationId)
+        val partnerApplication = sellerApplicationRepository.findByIdOrThrow(response.data!!.partnerApplicationId)
 
         partnerApplication.applicantInfo.representativeName shouldBe request.representativeName
         partnerApplication.applicantInfo.contactEmail.address shouldBe request.contactEmail
@@ -128,7 +126,7 @@ class OnboardingApiTest(
 
     @Test
     fun startReview() {
-        val result = submitUseCase.submit(createSubmitCommand())
+        val result = sellerApplicationRegister.submit(createSubmitCommand())
         val adminAccessToken = tokenProvider.generateAccessToken(100L, listOf(UserRole.ROLE_ADMIN))
 
         mockMvc.patch("/api/partnerApplications/${result.partnerApplicationId}/review") {
@@ -140,16 +138,16 @@ class OnboardingApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        val partnerApplication = partnerApplicationRepository.findByIdOrThrow(result.partnerApplicationId)
+        val partnerApplication = sellerApplicationRepository.findByIdOrThrow(result.partnerApplicationId)
 
         partnerApplication.status shouldBe ApplicationStatus.REVIEWING
     }
 
     @Test
     fun approve() {
-        val result = submitUseCase.submit(createSubmitCommand())
+        val result = sellerApplicationRegister.submit(createSubmitCommand())
 
-        startReviewUseCase.startReview(result.partnerApplicationId)
+        sellerApplicationProcessor.startReview(result.partnerApplicationId)
 
         val adminAccessToken = tokenProvider.generateAccessToken(100L, listOf(UserRole.ROLE_ADMIN))
 
@@ -162,7 +160,7 @@ class OnboardingApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        val partnerApplication = partnerApplicationRepository.findByIdOrThrow(result.partnerApplicationId)
+        val partnerApplication = sellerApplicationRepository.findByIdOrThrow(result.partnerApplicationId)
 
         partnerApplication.status shouldBe ApplicationStatus.APPROVED
         partnerApplication.reviewHistories shouldHaveSize 1
@@ -175,24 +173,24 @@ class OnboardingApiTest(
         account.roles shouldContain UserRole.ROLE_CUSTOMER
         account.roles shouldContain UserRole.ROLE_PARTNER
 
-        val partner = partnerJpaRepository.findAll()[0]
+        val partner = sellerJpaRepository.findAll()[0]
 
         partner.accountId shouldBe account.id
-        partner.partnerApplicationId shouldBe result.partnerApplicationId
+        partner.sellerApplicationId shouldBe result.partnerApplicationId
         partner.businessInfo shouldBe partnerApplication.businessInfo
         partner.settlementAccount shouldBe partnerApplication.settlementAccount
 
         val brand = brandJpaRepository.findAll()[0]
 
-        brand.partnerId shouldBe partner.id
+        brand.sellerId shouldBe partner.id
         brand.brandInfo shouldBe partnerApplication.brandInfo
     }
 
     @Test
     fun reject() {
-        val result = submitUseCase.submit(createSubmitCommand())
+        val result = sellerApplicationRegister.submit(createSubmitCommand())
 
-        startReviewUseCase.startReview(result.partnerApplicationId)
+        sellerApplicationProcessor.startReview(result.partnerApplicationId)
 
         val request = RejectRequest("조건 불충분")
         val adminAccessToken = tokenProvider.generateAccessToken(100L, listOf(UserRole.ROLE_ADMIN))
@@ -207,7 +205,7 @@ class OnboardingApiTest(
             jsonPath("$.timestamp") { exists() }
         }
 
-        val partnerApplication = partnerApplicationRepository.findByIdOrThrow(result.partnerApplicationId)
+        val partnerApplication = sellerApplicationRepository.findByIdOrThrow(result.partnerApplicationId)
 
         partnerApplication.status shouldBe ApplicationStatus.REJECTED
         partnerApplication.reviewHistories shouldHaveSize 1
@@ -216,10 +214,10 @@ class OnboardingApiTest(
     }
 
     @Test
-    fun checkApplicationStatus() {
-        val result = submitUseCase.submit(createSubmitCommand())
+    fun getSellerApplicationStatus() {
+        val result = sellerApplicationRegister.submit(createSubmitCommand())
 
-        mockMvc.get("/api/partnerApplications") {
+        mockMvc.get("/api/partnerApplications/me") {
             contentType = MediaType.APPLICATION_JSON
             cookie(Cookie("accessToken", accessToken),
                 Cookie("refreshToken", refreshToken)
@@ -227,7 +225,7 @@ class OnboardingApiTest(
         }.andExpect {
             status { isOk() }
             jsonPath("$.success") { value(true) }
-            jsonPath("$.data.applicationId") { value(result.partnerApplicationId) }
+            jsonPath("$.data.sellerApplicationId") { value(result.partnerApplicationId) }
             jsonPath("$.data.representativeName") { value("홍길동") }
             jsonPath("$.data.status") { value("SUBMITTED") }
             jsonPath("$.data.submittedAt") { exists() }

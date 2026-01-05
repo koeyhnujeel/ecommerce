@@ -11,7 +11,7 @@ class BrandTest {
             BrandInfo("나이키", "Nike", "스포츠 의류 전문")
         )
 
-        brand.partnerId shouldBe 1L
+        brand.sellerId shouldBe 1L
         brand.brandInfo.nameKor shouldBe "나이키"
         brand.brandInfo.nameEng shouldBe "Nike"
         brand.brandInfo.description shouldBe "스포츠 의류 전문"

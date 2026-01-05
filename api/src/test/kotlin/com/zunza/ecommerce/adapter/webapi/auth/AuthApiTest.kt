@@ -5,9 +5,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.auth.dto.request.LoginRequest
 import com.zunza.ecommerce.adapter.webapi.auth.dto.response.LoginResponse
-import com.zunza.ecommerce.application.account.provided.ActivateCustomerAccountUseCase
-import com.zunza.ecommerce.application.account.provided.LoginUseCase
-import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.AccountAuthenticator
+import com.zunza.ecommerce.application.account.provided.AccountManager
+import com.zunza.ecommerce.application.account.provided.AccountRegister
 import com.zunza.ecommerce.application.account.required.TokenRepository
 import com.zunza.ecommerce.application.account.service.dto.command.AccountRegisterCommand
 import com.zunza.ecommerce.application.account.service.dto.command.LoginCommand
@@ -31,10 +31,10 @@ import org.springframework.transaction.annotation.Transactional
 class AuthApiTest(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val loginUseCase: LoginUseCase,
+    val accountManager: AccountManager,
     val tokenRepository: TokenRepository,
-    val registerCustomerAccountUseCase: RegisterCustomerAccountUseCase,
-    val activateCustomerAccountUseCase: ActivateCustomerAccountUseCase
+    val accountRegister: AccountRegister,
+    val accountAuthenticator: AccountAuthenticator,
 ) {
     var accountId: Long = 0
     lateinit var accessToken: String
@@ -49,13 +49,13 @@ class AuthApiTest(
             phone = "01022225678",
         )
 
-        accountId = registerCustomerAccountUseCase.registerCustomerAccount(registerCommand)
+        accountId = accountRegister.registerCustomerAccount(registerCommand)
 
-        activateCustomerAccountUseCase.activateCustomerAccount(accountId)
+        accountManager.activateCustomerAccount(accountId)
 
         val loginCommand = LoginCommand(registerCommand.email, registerCommand.password)
 
-        val loginResult = loginUseCase.login(loginCommand)
+        val loginResult = accountAuthenticator.login(loginCommand)
 
         accessToken = loginResult.accessToken
         refreshToken = loginResult.refreshToken
@@ -65,8 +65,8 @@ class AuthApiTest(
     fun login() {
         val command = AccountRegisterCommand("zunza@email.com", "password1!", "홍길동", "01012345678")
 
-        val accountId = registerCustomerAccountUseCase.registerCustomerAccount(command)
-        activateCustomerAccountUseCase.activateCustomerAccount(accountId)
+        val accountId = accountRegister.registerCustomerAccount(command)
+        accountManager.activateCustomerAccount(accountId)
 
         val request = LoginRequest(command.email, command.password)
 

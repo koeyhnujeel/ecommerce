@@ -7,7 +7,7 @@ import com.zunza.ecommerce.adapter.persistence.account.AccountJpaRepository
 import com.zunza.ecommerce.adapter.persistence.customer.CustomerJpaRepository
 import com.zunza.ecommerce.adapter.webapi.account.dto.response.AccountRegisterResponse
 import com.zunza.ecommerce.adapter.webapi.account.fixture.AccountRequestFixture
-import com.zunza.ecommerce.application.account.provided.RegisterCustomerAccountUseCase
+import com.zunza.ecommerce.application.account.provided.AccountRegister
 import com.zunza.ecommerce.config.TestConfiguration
 import com.zunza.ecommerce.config.TestContainersConfiguration
 import com.zunza.ecommerce.domain.account.AccountStatus
@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 class AccountApiTest(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val accountCustomerAccountUseCase: RegisterCustomerAccountUseCase,
+    val accountCustomerAccountUseCase: AccountRegister,
     val accountJpaRepository: AccountJpaRepository,
     val customerJpaRepository: CustomerJpaRepository
 ) {

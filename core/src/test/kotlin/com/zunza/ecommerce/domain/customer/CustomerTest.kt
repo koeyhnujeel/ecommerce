@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
-fun <T : AbstractEntity> T.setIdForTest(id: Long): T {
+fun <T : AbstractEntity<ShippingAddress>> T.setIdForTest(id: Long): T {
     val property = AbstractEntity::class.memberProperties
         .find { it.name == "id" }
 

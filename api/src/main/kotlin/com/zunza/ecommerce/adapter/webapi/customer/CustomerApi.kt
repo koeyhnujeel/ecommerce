@@ -4,10 +4,8 @@ import com.zunza.ecommerce.adapter.ApiResponse
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.RegisterAddressRequest
 import com.zunza.ecommerce.adapter.webapi.customer.dto.request.UpdateAddressRequest
 import com.zunza.ecommerce.adapter.webapi.customer.dto.response.RegisterAddressResponse
-import com.zunza.ecommerce.application.customer.provided.DeleteShippingAddressUseCase
-import com.zunza.ecommerce.application.customer.provided.RegisterShippingAddressUseCase
-import com.zunza.ecommerce.application.customer.provided.UpdateDefaultShippingAddressUseCase
-import com.zunza.ecommerce.application.customer.provided.UpdateShippingAddressUseCase
+import com.zunza.ecommerce.application.customer.provided.CustomerManager
+import com.zunza.ecommerce.application.customer.provided.CustomerRegister
 import com.zunza.ecommerce.application.customer.service.dto.command.DeleteShippingAddressCommand
 import com.zunza.ecommerce.application.customer.service.dto.command.UpdateDefaultShippingAddressCommand
 import jakarta.validation.Valid
@@ -18,10 +16,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/customers")
 class CustomerApi(
-    private val registerShippingAddressUseCase: RegisterShippingAddressUseCase,
-    private val updateShippingAddressUseCase: UpdateShippingAddressUseCase,
-    private val deleteShippingAddressUseCase: DeleteShippingAddressUseCase,
-    private val updateDefaultShippingAddressUseCase: UpdateDefaultShippingAddressUseCase
+    private val customerRegister: CustomerRegister,
+    private val customerManager: CustomerManager,
 ) {
     @PostMapping("/me/shipping-addresses")
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,7 +25,7 @@ class CustomerApi(
         @AuthenticationPrincipal accountId: Long,
         @RequestBody @Valid request: RegisterAddressRequest
     ): ApiResponse<RegisterAddressResponse> {
-        val customerId = registerShippingAddressUseCase.registerShippingAddress(request.toCommand(accountId))
+        val customerId = customerRegister.registerShippingAddress(request.toCommand(accountId))
 
         return ApiResponse.success(RegisterAddressResponse(customerId))
     }
@@ -41,7 +37,7 @@ class CustomerApi(
         @AuthenticationPrincipal accountId: Long,
         @RequestBody @Valid request: UpdateAddressRequest
     ): ApiResponse<Any> {
-        updateShippingAddressUseCase.updateShippingAddress(request.toCommand(accountId, shippingAddressId))
+        customerManager.updateShippingAddress(request.toCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
@@ -52,7 +48,7 @@ class CustomerApi(
         @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
     ): ApiResponse<Any> {
-        updateDefaultShippingAddressUseCase.updateDefaultShippingAddress(UpdateDefaultShippingAddressCommand(accountId, shippingAddressId))
+        customerManager.updateDefaultShippingAddress(UpdateDefaultShippingAddressCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
@@ -63,7 +59,7 @@ class CustomerApi(
         @PathVariable shippingAddressId: Long,
         @AuthenticationPrincipal accountId: Long,
     ): ApiResponse<Any> {
-        deleteShippingAddressUseCase.deleteShippingAddress(DeleteShippingAddressCommand(accountId, shippingAddressId))
+        customerManager.deleteShippingAddress(DeleteShippingAddressCommand(accountId, shippingAddressId))
 
         return ApiResponse.success()
     }
