@@ -1,0 +1,23 @@
+package com.zunza.ecommerce.domain.stock
+
+import com.zunza.ecommerce.domain.AbstractEntity
+import com.zunza.ecommerce.domain.stock.dto.RegisterStockSpec
+import jakarta.persistence.Entity
+
+@Entity
+class Stock(
+    val productOptionId: Long,
+    val quantity: Int
+) : AbstractEntity<Stock>() {
+    companion object {
+        fun register(spec: RegisterStockSpec): Stock {
+            require(spec.productOptionsId > 0) { "상품 옵션 ID는 0 이상이어야 합니다." }
+            require(spec.quantity > 0) { "재고 수량은 0개 이상이어야 합니다." }
+
+            return Stock(
+                productOptionId = spec.productOptionsId,
+                quantity = spec.quantity
+            )
+        }
+    }
+}
