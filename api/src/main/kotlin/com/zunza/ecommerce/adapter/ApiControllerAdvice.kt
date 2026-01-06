@@ -17,6 +17,7 @@ class ApiControllerAdvice : ResponseEntityExceptionHandler() {
         ErrorCode.NOT_FOUND to HttpStatus.NOT_FOUND,
         ErrorCode.DUPLICATE to HttpStatus.CONFLICT,
         ErrorCode.INVALID_CREDENTIALS to HttpStatus.UNAUTHORIZED,
+        ErrorCode.INVALID_ROLE to HttpStatus.BAD_REQUEST,
         )
 
     override fun handleMethodArgumentNotValid(
