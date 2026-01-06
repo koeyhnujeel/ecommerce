@@ -24,7 +24,10 @@ metadata:
 2) scope 추론:
     - 경로에 `/domain/` 포함 → scope=domain
     - `/application/` 포함 → scope=application
-    - `/adapter/` 또는 `/webapi/` 포함 → scope=api
+    - `/adapter/webapi` 포함 → scope=api
+    - `/adapter/persistence` 포함 → scope=persistence
+    - `/adapter/security` 포함 → scope=security
+    - `/adapter/integration` 포함 → scope=integration
     - 그 외 → scope=repo
 3) type 추론:
    - 변경이 테스트만이면 `test`
@@ -36,9 +39,14 @@ metadata:
 5) 최종: `{type}/{scope}-{slug}`
 
 ## 커밋 분리 규칙(완전 자동)
-- Commit 1: 프로덕션 코드 (예: `**/src/main/**`)
-- Commit 2: 테스트 코드 (예: `**/src/test/**`)
-- Commit 3: 나머지(gradle, docs, config 등)
+- Commit 1: 프로덕션 코드(domain) (예: `**/src/main/**`)
+- Commit 2: 프로덕션 코드(application) (예: `**/src/main/**`)
+- Commit 3: 프로덕션 코드(api) (예: `**/src/main/**`)
+- Commit 4: 프로덕션 코드(persistence) (예: `**/src/main/**`)
+- Commit 5: 프로덕션 코드(security) (예: `**/src/main/**`)
+- Commit 6: 프로덕션 코드(integration) (예: `**/src/main/**`)
+- Commit 7: 테스트 코드 (예: `**/src/test/**`)
+- Commit 8: 나머지(gradle, docs, config 등)
 - 그룹에 해당 파일이 없으면 해당 커밋은 건너뛴다.
 - 커밋 메시지는 머리말을 제외하고 한국어로 작성
 - 커밋 메시지는 Conventional Commits 형태로:
