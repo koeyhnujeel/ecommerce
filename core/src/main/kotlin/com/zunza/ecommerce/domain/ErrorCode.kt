@@ -4,4 +4,5 @@ enum class ErrorCode {
     NOT_FOUND,
     DUPLICATE,
     INVALID_CREDENTIALS,
+    INVALID_ROLE,
 }

@@ -1,6 +1,5 @@
-package com.zunza.ecommerce.shared
+package com.zunza.ecommerce.domain.shared
 
-import com.zunza.ecommerce.domain.shared.Email
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
