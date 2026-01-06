@@ -40,6 +40,8 @@
 - Value Object class
 
 ## 테스트 실행
+- 테스트 대상이 속한 경로에 core가 있다면, 모듈 -> :core:test
+- 테스트 대상이 속한 경로에 api가 있다면, 모듈 -> test
 - ```text
-  ./gradlew test --tests {대상클래스}
+  ./gradlew {모듈} --tests {대상클래스}
   ```
