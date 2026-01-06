@@ -12,7 +12,7 @@ class StockTest {
 
         val stock = Stock.register(spec)
 
-        stock.productOptionId shouldBe spec.productOptionsId
+        stock.productOptionId shouldBe spec.productOptionId
         stock.quantity shouldBe spec.quantity
     }
 
@@ -34,7 +34,7 @@ class StockTest {
         productOptionId: Long = 1L,
         quantity: Int = 10
     ) = RegisterStockSpec(
-        productOptionsId = productOptionId,
+        productOptionId = productOptionId,
         quantity = quantity
     )
 }
