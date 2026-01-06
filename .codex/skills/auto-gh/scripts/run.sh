@@ -54,7 +54,10 @@ ok "브랜치 생성/체크아웃 완료: $NEW_BRANCH"
 
 # ---- file grouping based on git status (not diff) ----
 # We group by path patterns. This uses working-tree file list from status.
-mapfile -t CHANGED_PATHS < <(git status --porcelain | sed -E 's/^.. //' | sed -E 's/^"(.+)"$/\1/')
+CHANGED_PATHS=()
+while IFS= read -r path; do
+  CHANGED_PATHS+=("$path")
+done < <(git status --porcelain | sed -E 's/^.. //' | sed -E 's/^"(.+)"$/\1/')
 
 # Build groups (newline-separated paths)
 PROD_LIST=()
@@ -124,17 +127,18 @@ fi
 git push -u origin "$NEW_BRANCH"
 ok "origin push 완료"
 
-PR_URL="$(gh pr create --base "$BASE_BRANCH" --head "$NEW_BRANCH" --title "$PR_TITLE" --body "$PR_BODY" --json url -q .url)"
+gh pr create --base "$BASE_BRANCH" --head "$NEW_BRANCH" --title "$PR_TITLE" --body "$PR_BODY"
+PR_URL="$(gh pr view "$NEW_BRANCH" --json url -q .url)"
 ok "PR 생성 완료: $PR_URL"
 
 # ---- merge (synchronous) ----
 # Try merge method first to preserve commits; fallback to squash if merge is not allowed by repo policy.
 set +e
-gh pr merge "$PR_URL" --merge --delete-branch --yes
+printf 'y\n' | gh pr merge "$PR_URL" --merge --delete-branch
 MERGE_RC=$?
 if [[ $MERGE_RC -ne 0 ]]; then
   info "merge 방식 머지 실패(레포 정책/체크 미통과일 수 있음). squash로 재시도합니다."
-  gh pr merge "$PR_URL" --squash --delete-branch --yes
+  printf 'y\n' | gh pr merge "$PR_URL" --squash --delete-branch
   MERGE_RC=$?
 fi
 set -e
