@@ -54,7 +54,10 @@ ok "브랜치 생성/체크아웃 완료: $NEW_BRANCH"
 
 # ---- file grouping based on git status (not diff) ----
 # We group by path patterns. This uses working-tree file list from status.
-mapfile -t CHANGED_PATHS < <(git status --porcelain | sed -E 's/^.. //' | sed -E 's/^"(.+)"$/\1/')
+CHANGED_PATHS=()
+while IFS= read -r path; do
+  CHANGED_PATHS+=("$path")
+done < <(git status --porcelain | sed -E 's/^.. //' | sed -E 's/^"(.+)"$/\1/')
 
 # Build groups (newline-separated paths)
 PROD_LIST=()
@@ -124,7 +127,8 @@ fi
 git push -u origin "$NEW_BRANCH"
 ok "origin push 완료"
 
-PR_URL="$(gh pr create --base "$BASE_BRANCH" --head "$NEW_BRANCH" --title "$PR_TITLE" --body "$PR_BODY" --json url -q .url)"
+gh pr create --base "$BASE_BRANCH" --head "$NEW_BRANCH" --title "$PR_TITLE" --body "$PR_BODY"
+PR_URL="$(gh pr view "$NEW_BRANCH" --json url -q .url)"
 ok "PR 생성 완료: $PR_URL"
 
 # ---- merge (synchronous) ----
