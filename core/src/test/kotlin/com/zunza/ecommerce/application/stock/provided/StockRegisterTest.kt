@@ -4,12 +4,7 @@ import com.zunza.ecommerce.application.stock.required.StockRepository
 import com.zunza.ecommerce.application.stock.service.StockRegistrationService
 import com.zunza.ecommerce.application.stock.service.command.RegisterStockCommand
 import com.zunza.ecommerce.domain.stock.Stock
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

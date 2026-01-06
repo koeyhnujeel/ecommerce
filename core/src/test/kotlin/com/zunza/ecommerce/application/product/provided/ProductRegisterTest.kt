@@ -10,14 +10,7 @@ import com.zunza.ecommerce.application.stock.service.command.RegisterStockComman
 import com.zunza.ecommerce.domain.prodcut.Product
 import com.zunza.ecommerce.domain.prodcut.ProductOption
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.just
-import io.mockk.Runs
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
