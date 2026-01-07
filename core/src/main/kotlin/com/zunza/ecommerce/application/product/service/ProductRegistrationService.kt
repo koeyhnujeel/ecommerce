@@ -5,7 +5,7 @@ import com.zunza.ecommerce.application.product.required.ProductRepository
 import com.zunza.ecommerce.application.product.service.dto.command.RegisterProductCommand
 import com.zunza.ecommerce.application.stock.provided.StockRegister
 import com.zunza.ecommerce.application.stock.service.command.RegisterStockCommand
-import com.zunza.ecommerce.domain.prodcut.Product
+import com.zunza.ecommerce.domain.product.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

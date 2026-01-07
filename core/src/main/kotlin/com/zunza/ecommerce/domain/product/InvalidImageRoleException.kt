@@ -1,4 +1,4 @@
-package com.zunza.ecommerce.domain.prodcut
+package com.zunza.ecommerce.domain.product
 
 import com.zunza.ecommerce.domain.BusinessException
 import com.zunza.ecommerce.domain.ErrorCode

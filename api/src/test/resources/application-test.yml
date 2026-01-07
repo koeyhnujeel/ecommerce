@@ -25,14 +25,14 @@ spring:
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_ACCESS_KEY_ID}
-      secret-key: ${AWS_SECRET_ACCESS_KEY}
+      access-key: test
+      secret-key: test
     region:
       static: ap-northeast-2
     s3:
-      bucket: ecommerce-bucket-1323232
+      bucket: test-bucket
 
 jwt:
-  secret: ${JWT_SECRET}
-  access-token-ttl: ${JWT_ACCESS_TOKEN_TTL}
-  refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL}
+  secret: VffdfadfafdVffdfadfafdVffdfadfafdVffdfadfafdVffdfadfafdVffdfadfafdVffdfadfafdVffdfadfafdVffdfadfafdVffdfadd
+  access-token-ttl: 1000000
+  refresh-token-ttl: 104800000

@@ -1,5 +1,5 @@
 package com.zunza.ecommerce.domain.account
 
 enum class UserRole {
-    ROLE_CUSTOMER, ROLE_PARTNER, ROLE_ADMIN
+    ROLE_CUSTOMER, ROLE_SELLER, ROLE_ADMIN
 }

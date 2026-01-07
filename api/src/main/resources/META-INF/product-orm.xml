@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm
+                                     https://jakarta.ee/xml/ns/persistence/orm/orm_3_1.xsd"
+                 version="3.1">
+
+    <access>FIELD</access>
+
+    <entity class="com.zunza.ecommerce.domain.product.Product">
+        <table name="product"/>
+        <attributes>
+            <basic name="brandId">
+                <column name="brand_id" nullable="false"/>
+            </basic>
+            <element-collection name="categoryIds">
+                <collection-table name="product_category">
+                    <join-column name="product_id" nullable="false"/>
+                </collection-table>
+                <column name="category_id" nullable="false"/>
+            </element-collection>
+            <basic name="name">
+                <column name="name" nullable="false" length="200"/>
+            </basic>
+            <basic name="description">
+                <column name="description" nullable="false" column-definition="TEXT"/>
+            </basic>
+            <embedded name="basePrice"/>
+            <basic name="status">
+                <column name="status" nullable="false" length="50"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="registeredAt">
+                <column name="registered_at" nullable="false"/>
+            </basic>
+            <basic name="updatedAt">
+                <column name="updated_at" nullable="false"/>
+            </basic>
+            <one-to-many name="productImages" orphan-removal="true">
+                <join-column name="product_id" nullable="false"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+
+            <one-to-many name="productOptions" orphan-removal="true">
+                <join-column name="product_id" nullable="false"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+        </attributes>
+    </entity>
+
+    <entity class="com.zunza.ecommerce.domain.product.ProductImage">
+        <table name="product_image"/>
+        <attributes>
+            <basic name="url">
+                <column name="url" nullable="false" length="1000"/>
+            </basic>
+            <basic name="type">
+                <column name="type" nullable="false" length="50"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="displayOrder">
+                <column name="display_order" nullable="false"/>
+            </basic>
+        </attributes>
+    </entity>
+
+    <entity class="com.zunza.ecommerce.domain.product.ProductOption">
+        <table name="product_option"/>
+        <attributes>
+            <basic name="color">
+                <column name="color" nullable="false" length="50"/>
+            </basic>
+            <basic name="size">
+                <column name="size" nullable="false" length="50"/>
+            </basic>
+            <embedded name="additionalPrice"/>
+            <basic name="status">
+                <column name="status" nullable="false" length="50"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+        </attributes>
+    </entity>
+</entity-mappings>
