@@ -1,8 +1,8 @@
-package com.zunza.ecommerce.domain.prodcut
+package com.zunza.ecommerce.domain.product
 
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductImageSpec
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductOptionSpec
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductImageSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductOptionSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe

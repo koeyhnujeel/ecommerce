@@ -1,4 +1,4 @@
-package com.zunza.ecommerce.domain.prodcut.dto
+package com.zunza.ecommerce.domain.product.dto
 
 import java.math.BigDecimal
 

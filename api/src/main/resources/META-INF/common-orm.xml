@@ -52,4 +52,12 @@
         </attributes>
     </embeddable>
 
+    <embeddable class="com.zunza.ecommerce.domain.shared.Money">
+        <attributes>
+            <basic name="amount">
+                <column name="amount" nullable="false" precision="12" scale="0"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
 </entity-mappings>

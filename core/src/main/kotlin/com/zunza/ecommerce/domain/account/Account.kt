@@ -71,6 +71,6 @@ class Account private constructor(
     fun grantPartnerRole() {
         check(this.status == AccountStatus.ACTIVE) { "ACTIVE 상태가 아닙니다." }
 
-        this.roles.add(UserRole.ROLE_PARTNER)
+        this.roles.add(UserRole.ROLE_SELLER)
     }
 }

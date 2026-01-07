@@ -36,6 +36,7 @@ class SecurityConfiguration(
             }
             .authorizeHttpRequests { authorize ->
                 authorize.requestMatchers("/api/partnerApplications/**").authenticated()
+                authorize.requestMatchers("/api/assets/**").authenticated()
                 authorize.anyRequest().permitAll()
             }
             .addFilterBefore(

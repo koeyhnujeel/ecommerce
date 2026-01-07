@@ -1,7 +1,7 @@
-package com.zunza.ecommerce.domain.prodcut
+package com.zunza.ecommerce.domain.product
 
 import com.zunza.ecommerce.domain.AbstractEntity
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductSpec
 import com.zunza.ecommerce.domain.shared.Money
 import jakarta.persistence.Entity
 import java.math.BigDecimal

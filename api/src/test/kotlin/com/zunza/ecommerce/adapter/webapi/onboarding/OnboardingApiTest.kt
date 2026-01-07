@@ -171,7 +171,7 @@ class OnboardingApiTest(
 
         account.roles shouldHaveSize 2
         account.roles shouldContain UserRole.ROLE_CUSTOMER
-        account.roles shouldContain UserRole.ROLE_PARTNER
+        account.roles shouldContain UserRole.ROLE_SELLER
 
         val partner = sellerJpaRepository.findAll()[0]
 

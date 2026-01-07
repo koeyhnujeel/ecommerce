@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Bean
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -19,5 +20,12 @@ class TestContainersConfiguration {
     @ServiceConnection
     fun redisContainer(): RedisContainer =
         RedisContainer(DockerImageName.parse("redis:8.4.0-alpine"))
+            .withReuse(true)
+
+
+    @Bean
+    fun localStackContainer(): LocalStackContainer =
+        LocalStackContainer(DockerImageName.parse("localstack/localstack:s3-latest"))
+            .withServices(LocalStackContainer.Service.S3)
             .withReuse(true)
 }

@@ -1,8 +1,8 @@
 package com.zunza.ecommerce.application.product.service.dto.command
 
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductImageSpec
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductOptionSpec
-import com.zunza.ecommerce.domain.prodcut.dto.RegisterProductSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductImageSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductOptionSpec
+import com.zunza.ecommerce.domain.product.dto.RegisterProductSpec
 import java.math.BigDecimal
 
     data class RegisterProductCommand(

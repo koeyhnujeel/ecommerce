@@ -7,8 +7,8 @@ import com.zunza.ecommerce.application.product.service.dto.command.RegisterProdu
 import com.zunza.ecommerce.application.product.service.dto.command.RegisterProductOptionCommand
 import com.zunza.ecommerce.application.stock.provided.StockRegister
 import com.zunza.ecommerce.application.stock.service.command.RegisterStockCommand
-import com.zunza.ecommerce.domain.prodcut.Product
-import com.zunza.ecommerce.domain.prodcut.ProductOption
+import com.zunza.ecommerce.domain.product.Product
+import com.zunza.ecommerce.domain.product.ProductOption
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import org.junit.jupiter.api.AfterEach

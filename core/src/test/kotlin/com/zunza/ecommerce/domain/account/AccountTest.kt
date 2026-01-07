@@ -151,7 +151,7 @@ class AccountTest {
 
         account.grantPartnerRole()
 
-        account.roles shouldBe listOf(UserRole.ROLE_CUSTOMER, UserRole.ROLE_PARTNER)
+        account.roles shouldBe listOf(UserRole.ROLE_CUSTOMER, UserRole.ROLE_SELLER)
     }
 
     @Test

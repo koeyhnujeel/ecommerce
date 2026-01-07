@@ -51,11 +51,8 @@ class ApiControllerAdvice : ResponseEntityExceptionHandler() {
         getProblemDetail(HttpStatus.UNAUTHORIZED, exception)
 
     @ExceptionHandler(BusinessException::class)
-    fun handleBusinessException(exception: BusinessException): ProblemDetail {
-        val status = statusMap[exception.errorCode]!!
-
-        return getProblemDetail(status, exception)
-    }
+    fun handleBusinessException(exception: BusinessException) =
+        getProblemDetail(statusMap[exception.errorCode]!!, exception)
 
     private fun getProblemDetail(status: HttpStatus, exception: Exception): ProblemDetail {
         val problemDetail = ProblemDetail.forStatusAndDetail(status, exception.message)
