@@ -105,13 +105,13 @@ stage_and_commit() {
 }
 
 # Commit 1: prod
-stage_and_commit "$COMMIT_MSG_PROD" "${PROD_LIST[@]}"
+stage_and_commit "$COMMIT_MSG_PROD" "${PROD_LIST[@]:-}"
 
 # Commit 2: test
-stage_and_commit "$COMMIT_MSG_TEST" "${TEST_LIST[@]}"
+stage_and_commit "$COMMIT_MSG_TEST" "${TEST_LIST[@]:-}"
 
 # Commit 3: misc
-stage_and_commit "$COMMIT_MSG_MISC" "${MISC_LIST[@]}"
+stage_and_commit "$COMMIT_MSG_MISC" "${MISC_LIST[@]:-}"
 
 # If anything remains unstaged, commit it as misc (full automation safety net)
 if [[ -n "$(git status --porcelain)" ]]; then
