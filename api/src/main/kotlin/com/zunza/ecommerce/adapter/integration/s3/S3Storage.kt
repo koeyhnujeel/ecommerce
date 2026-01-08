@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import software.amazon.awssdk.core.exception.SdkClientException
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.S3Exception
 import java.util.*
@@ -47,16 +48,38 @@ class S3Storage(
             logger.warn { "이미지 업로드 실패 (AWS 오류): ${e.awsErrorDetails()}" }
             throw e
         } catch (e: SdkClientException) {
-            logger.warn { "이미지 업로드 실패 (네트워크/재시도 초과): $e" }
+            logger.warn(e) { "이미지 업로드 실패 (네트워크/재시도 초과)" }
             throw e
         } catch (e: Exception) {
-            logger.warn { "이미지 업로드 실패 (알 수 없는 오류): $e" }
+            logger.warn(e) { "이미지 업로드 실패 (알 수 없는 오류)" }
             throw e
         }
     }
 
     override fun uploadAll(commands: List<UploadImageCommand>): List<String> {
         return commands.map { upload(it) }
+    }
+
+    override fun delete(imageUrl: String) {
+        try {
+            val key = extractKeyFromUrl(imageUrl)
+
+            val request = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build()
+
+            s3Client.deleteObject(request)
+        } catch (e: S3Exception) {
+            logger.warn { "이미지 삭제 실패 (AWS 오류): ${e.awsErrorDetails()}" }
+            throw e
+        } catch (e: SdkClientException) {
+            logger.warn(e) { "이미지 삭제 실패 (네트워크/재시도 초과)" }
+            throw e
+        } catch (e: Exception) {
+            logger.warn(e) { "이미지 삭제 실패 (알 수 없는 오류)" }
+            throw e
+        }
     }
 
     private fun generateKey(originalFilename: String): String {
@@ -68,4 +91,7 @@ class S3Storage(
 
     private fun getImageUrl(key: String) =
         "https://$bucket.s3.$region.amazonaws.com/${key}"
+
+    private fun extractKeyFromUrl(fileUrl: String) =
+        fileUrl.substringAfter(".amazonaws.com/")
 }

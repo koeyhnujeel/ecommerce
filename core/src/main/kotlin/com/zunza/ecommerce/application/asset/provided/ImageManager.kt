@@ -6,4 +6,6 @@ interface ImageManager {
     fun uploadProductMainImage(command: UploadImageCommand): String
 
     fun uploadProductDetailImages(commands: List<UploadImageCommand>): List<String>
+
+    fun deleteImage(imageUrl: String)
 }

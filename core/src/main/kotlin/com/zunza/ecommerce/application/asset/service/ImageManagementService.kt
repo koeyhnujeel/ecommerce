@@ -16,4 +16,8 @@ class ImageManagementService(
     override fun uploadProductDetailImages(commands: List<UploadImageCommand>): List<String> {
         return imageStorage.uploadAll(commands)
     }
+
+    override fun deleteImage(imageUrl: String) {
+        imageStorage.delete(imageUrl)
+    }
 }
