@@ -8,6 +8,6 @@ data class Money(
     val amount: BigDecimal
 ) {
     init {
-        require(amount > BigDecimal.ZERO) { "금액은 음수일 수 없습니다." }
+        require(amount >= BigDecimal.ZERO) { "금액은 음수일 수 없습니다." }
     }
 }
