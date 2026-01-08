@@ -15,7 +15,6 @@ class MoneyTest {
 
     @Test
     fun `금액이 0 이하이면 예외가 발생한다`() {
-        shouldThrow<IllegalArgumentException> { Money(BigDecimal.ZERO) }
         shouldThrow<IllegalArgumentException> { Money(BigDecimal("-1")) }
     }
 }

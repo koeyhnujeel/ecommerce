@@ -19,12 +19,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @SpringBootTest(classes = [TestConfiguration::class, TestContainersConfiguration::class])
 class AccountApiTest(
     val mockMvc: MockMvc,

@@ -9,8 +9,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.test.context.ActiveProfiles
 
 @DataRedisTest
+@ActiveProfiles("test")
 @Import(TokenRepositoryImpl::class, TestContainersConfiguration::class)
 @EnableConfigurationProperties(JwtProperties::class)
 class TokenRepositoryImplTest(

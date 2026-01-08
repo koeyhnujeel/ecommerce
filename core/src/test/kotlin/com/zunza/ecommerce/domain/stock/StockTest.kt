@@ -20,14 +20,14 @@ class StockTest {
     fun `상품 옵션 아이디가 유효하지 않으면 예외가 발생한다`() {
         shouldThrow<IllegalArgumentException> {
             Stock.register(createRegisterStockSpec(productOptionId = 0L))
-        }.message shouldBe "상품 옵션 ID는 0 이상이어야 합니다."
+        }.message shouldBe "상품 옵션 ID는 1 이상이어야 합니다."
     }
 
     @Test
     fun `재고 수량이 유효하지 않으면 예외가 발생한다`() {
         shouldThrow<IllegalArgumentException> {
             Stock.register(createRegisterStockSpec(quantity = 0))
-        }.message shouldBe "재고 수량은 0개 이상이어야 합니다."
+        }.message shouldBe "재고 수량은 1개 이상이어야 합니다."
     }
 
     private fun createRegisterStockSpec(
