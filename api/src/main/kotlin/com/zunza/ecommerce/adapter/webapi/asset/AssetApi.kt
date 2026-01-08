@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/api/assets/products")
+@RequestMapping("/api/assets")
 class AssetApi(
     private val imageManager: ImageManager
 ) {
     @PreAuthorize("hasRole('SELLER')")
-    @PostMapping("/images/upload")
+    @PostMapping("/products/images/upload")
     @ResponseStatus(HttpStatus.CREATED)
     fun uploadProductMainImage(@RequestParam image: MultipartFile): ApiResponse<UploadImageResponse> {
         val command = UploadImageCommand(
@@ -31,7 +31,7 @@ class AssetApi(
     }
 
     @PreAuthorize("hasRole('SELLER')")
-    @PostMapping("/images/upload-all")
+    @PostMapping("/products/images/upload-all")
     @ResponseStatus(HttpStatus.CREATED)
     fun uploadProductDetailImages(@RequestParam images: List<MultipartFile>): ApiResponse<List<UploadImageResponse>> {
         val commands = images.map { image ->
@@ -47,5 +47,14 @@ class AssetApi(
         val response = imageUrls.map { UploadImageResponse.from(it) }
 
         return ApiResponse.success(response)
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @DeleteMapping("/products/images/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteProductImage(@RequestParam imageUrl: String): ApiResponse<Any> {
+        imageManager.deleteImage(imageUrl)
+
+        return ApiResponse.success()
     }
 }
