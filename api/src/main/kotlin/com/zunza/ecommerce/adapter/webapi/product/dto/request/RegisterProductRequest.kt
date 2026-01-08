@@ -3,15 +3,9 @@ package com.zunza.ecommerce.adapter.webapi.product.dto.request
 import com.zunza.ecommerce.application.product.service.dto.command.RegisterProductCommand
 import com.zunza.ecommerce.application.product.service.dto.command.RegisterProductImageCommand
 import com.zunza.ecommerce.application.product.service.dto.command.RegisterProductOptionCommand
-import java.math.BigDecimal
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Digits
-import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Positive
-import jakarta.validation.constraints.PositiveOrZero
+import jakarta.validation.constraints.*
+import java.math.BigDecimal
 
 data class RegisterProductRequest(
     @field:NotNull(message = "브랜드 선택은 필수입니다.")
