@@ -41,10 +41,11 @@
 - **대상**: `adapter/webapi` (Controller)
 - **성격**: **Integration Test** (통합 테스트)
 - **규칙**:
-  - 통합 테스트 때는 mockK를 사용하지 않는다.
+  - 통합 테스트는 mockK를 사용하지 않는다.
   - `@SpringBootTest` + `@AutoConfigureMockMvc` 사용.
   - 실제 HTTP 요청/응답을 검증하기 위해 `MockMvc`를 사용한다.
   - `ObjectMapper`를 사용하여 Request/Response Body를 검증한다.
+  - DB에 올바르게 저장, 수정, 삭제 됐는지 검증한다.
   - **Transaction**: `@Transactional`을 붙여 테스트 후 데이터가 롤백되도록 한다.
 
 ## 3. Assertions 가이드 (Kotest Matchers)
