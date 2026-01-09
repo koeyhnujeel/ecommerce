@@ -9,4 +9,4 @@ class Category(
     val parentId: Long,
     val depth: Int,
     val displayOrder: Int
-) : AbstractEntity<Category>()
+) : AbstractEntity()

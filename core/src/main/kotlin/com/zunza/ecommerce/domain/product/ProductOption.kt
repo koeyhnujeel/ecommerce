@@ -11,7 +11,7 @@ class ProductOption private constructor(
     val size: String,
     val additionalPrice: Money,
     val status: ProductOptionStatus
-) : AbstractEntity<ProductOption>() {
+) : AbstractEntity() {
     companion object {
         fun register(spec: RegisterProductOptionSpec): ProductOption {
             require(spec.color.isNotBlank()) { "상품 옵션 색상은 필수입니다." }

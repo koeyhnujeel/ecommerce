@@ -10,7 +10,7 @@ class ShippingAddress(
     var receiverName: String,
     var address: Address,
     var isDefault: Boolean
-) : AbstractEntity<ShippingAddress>() {
+) : AbstractEntity() {
     companion object {
         fun create(
             alias: String,

@@ -19,7 +19,7 @@ class Product(
     val productOptions: MutableList<ProductOption>,
     val registeredAt: LocalDateTime,
     val updatedAt: LocalDateTime
-) : AbstractEntity<Product>() {
+) : AbstractEntity() {
     companion object {
         fun register(spec: RegisterProductSpec): Product {
             require(spec.brandId > 0) { "브랜드 ID는 1 이상이어야 합니다."}

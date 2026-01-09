@@ -15,7 +15,7 @@ class Account private constructor(
     var activatedAt: LocalDateTime?,
     var lastLoginAt: LocalDateTime?,
     var deactivatedAt: LocalDateTime?
-) : AbstractEntity<Account>() {
+) : AbstractEntity() {
     companion object {
         fun register(
             email: String,

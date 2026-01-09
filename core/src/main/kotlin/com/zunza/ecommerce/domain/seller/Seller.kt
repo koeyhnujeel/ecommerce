@@ -10,7 +10,7 @@ class Seller(
     val sellerApplicationId: Long,
     val businessInfo: BusinessInfo,
     val settlementAccount: BankAccount,
-) : AbstractEntity<Seller>() {
+) : AbstractEntity() {
     companion object {
         fun register(
             accountId: Long,

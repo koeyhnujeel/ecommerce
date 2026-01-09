@@ -9,7 +9,7 @@ class ProductImage private constructor(
     val url: String,
     val type: ImageType,
     val displayOrder: Int
-) : AbstractEntity<ProductImage>() {
+) : AbstractEntity() {
     companion object {
         fun register(spec: RegisterProductImageSpec): ProductImage {
             require(spec.url.isNotBlank()) { "상품 이미지 URL은 필수입니다." }

@@ -18,7 +18,7 @@ class SellerApplication private constructor(
     var status: ApplicationStatus,
     val submittedAt: LocalDateTime,
     val reviewHistories: MutableList<ReviewHistory> = mutableListOf()
-) : AbstractEntity<SellerApplication>() {
+) : AbstractEntity() {
     companion object {
         fun submit(
             accountId: Long,

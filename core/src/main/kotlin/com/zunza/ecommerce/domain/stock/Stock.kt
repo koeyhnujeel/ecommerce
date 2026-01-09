@@ -8,7 +8,7 @@ import jakarta.persistence.Entity
 class Stock(
     val productOptionId: Long,
     val quantity: Int
-) : AbstractEntity<Stock>() {
+) : AbstractEntity() {
     companion object {
         fun register(spec: RegisterStockSpec): Stock {
             require(spec.productOptionId > 0) { "상품 옵션 ID는 1 이상이어야 합니다." }

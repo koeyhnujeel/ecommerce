@@ -9,7 +9,7 @@ class ReviewHistory(
     val result: ReviewResult,
     val comment: String,
     val reviewedAt: LocalDateTime,
-) : AbstractEntity<ReviewHistory>() {
+) : AbstractEntity() {
     companion object {
         fun approve() = ReviewHistory(
             result = ReviewResult.APPROVED,
